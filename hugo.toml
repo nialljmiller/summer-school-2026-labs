@@ -1,0 +1,51 @@
+baseurl = "https://mesastar.org/summer-school-2026/labs"
+languageCode = 'en-us'
+title = 'MESA School 2026'
+
+theme = 'Hextra'
+
+[params.search]
+enable = false
+
+[params.navbar.logo]
+path = 'logo.png'
+width = 50
+height = 50
+
+[params.highlight.copy]
+display = 'always'
+
+[[menu.main]]
+name = 'Monday'
+pageRef = '/monday/'
+weight = 1
+
+[[menu.main]]
+name = 'Tuesday'
+pageRef = '/tuesday/'
+weight = 2
+
+[[menu.main]]
+name = 'Wednesday'
+pageRef = '/wednesday/'
+weight = 3
+
+[[menu.main]]
+name = 'Thursday'
+pageRef = '/thursday/'
+weight = 4
+
+[[menu.main]]
+name = 'Friday'
+pageRef = '/friday/'
+weight = 5
+
+[markup.goldmark.extensions.passthrough]
+enable = true
+
+[markup.goldmark.extensions.passthrough.delimiters]
+block = [['\[', '\]'], ['$$', '$$']]
+inline = [['$', '$'], ['\(', '\)']]
+
+[markup.goldmark.renderer]
+unsafe = true

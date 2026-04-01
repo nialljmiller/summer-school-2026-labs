@@ -1,0 +1,7 @@
+{{/* KaTex */}}
+{{- $katexCSS := resources.Get "lib/katex/katex.min.css" | fingerprint -}}
+<link type="text/css" rel="stylesheet" href="{{ $katexCSS.RelPermalink }}" integrity="{{ $katexCSS.Data.Integrity }}" />
+{{ $katexFonts := resources.Match "lib/katex/fonts/*" }}
+{{- range $katexFonts -}}
+  {{ .Publish }}
+{{- end -}}
