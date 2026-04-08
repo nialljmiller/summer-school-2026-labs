@@ -1,0 +1,241 @@
+&star_job
+
+   !# output
+
+      pgstar_flag = .false.
+      save_model_when_terminate = .true.
+      save_model_filename = '{save_model_filename}'
+      save_photo_when_terminate = .true.
+      show_log_description_at_start = .false.
+      history_columns_file = 'history_columns.list'
+      profile_columns_file = 'profile_columns.list'
+
+   !# starting model
+
+      ! load_saved_model = .true.
+      ! load_model_filename = 'index-00001_zams.mod' !change this
+
+      load_saved_model = .false.
+      create_pre_main_sequence_model = .true.
+      pre_ms_T_c = 9.9e5!7e5
+
+   !# modifications to model
+
+      set_uniform_initial_composition = .false.
+      initial_zfracs = 6 ! GS98_zfracs = 3,  AGSS09_zfracs = 6
+      
+      set_initial_model_number = .true.
+      initial_model_number = 0
+
+      new_rotation_flag = .true.
+      change_rotation_flag = .true.
+      change_initial_rotation_flag = .false.
+
+      new_omega = 1.81805130416076d-05 ! 4 days 
+      set_omega = .true.
+      set_initial_omega = .true.
+
+   !# nuclear reactions
+
+        !### set_rates_preference
+        !### new_rates_preference
+
+         ! + 1 = NACRE rates
+         ! + 2 = jina reaclib rates
+
+      change_net = .true.
+      new_net_name = 'pp_and_cno_extras.net'  ! 
+      
+    !# misc 
+    num_steps_for_garbage_collection = 0 !for artemis cluster
+    
+/ ! end of star_job namelist
+
+
+&eos
+
+/ ! end of eos namelist
+
+
+&kap
+      Zbase =  {initial_z}
+      kap_file_prefix = 'a09' !'gs98' ! !change this
+      kap_lowT_prefix = 'lowT_fa05_a09p' ! 'lowT_fa05_gs98' ! !change this
+      kap_CO_prefix = 'a09_co' ! 'gs98_co' !!change this 
+
+/ ! end of kap namelist
+
+
+&controls
+   !# other hooks 
+      use_other_torque = .true.
+
+   !# specifications for starting model
+
+      initial_mass = {initial_mass}
+      initial_z = {initial_z}
+      initial_y = {initial_y}   ! (< 0 means use default which is 0.24 + 2*initial_z)
+
+   !# mixing parameters
+
+      mixing_length_alpha = {mixing_length_alpha} !change this
+      use_Ledoux_criterion = .false.
+      alpha_semiconvection = 0.1
+      thermohaline_coeff = 666.0
+      num_cells_for_smooth_gradL_composition_term = 0
+      threshold_for_smooth_gradL_composition_term = 0
+      MLT_option = 'Henyey'
+
+   !## overshooting
+      do_conv_premix = .true.
+      overshoot_scheme(1) = '{overshoot_scheme_1}'  ! Possible values: exponential, step
+      overshoot_zone_type(1) = '{overshoot_zone_type_1}'  ! Possible values: burn_H, burn_He, burn_Z, nonburn, any
+      overshoot_zone_loc(1) = '{overshoot_zone_loc_1}'  ! Possible values: core, shell, any
+      overshoot_bdy_loc(1) = '{overshoot_bdy_loc_1}'  ! Possible values: bottom, top, any
+      overshoot_f(1) = {overshoot_f_1} 
+      overshoot_f0(1) = {overshoot_f0_1} 
+
+
+      overshoot_scheme(2) = '{overshoot_scheme_2}' ! Possible values: exponential, step
+      overshoot_zone_type(2) = '{overshoot_zone_type_2}' !change this ! Possible values: burn_H, burn_He, burn_Z, nonburn, any
+      overshoot_zone_loc(2) = '{overshoot_zone_loc_2}' !change this ! Possible values: core, shell, any
+      overshoot_bdy_loc(2) = '{overshoot_bdy_loc_2}' !change this ! Possible values: bottom, top, any
+      overshoot_f(2) = {overshoot_f_2}  !change this
+      overshoot_f0(2) = {overshoot_f0_2}  !change this
+
+   !## diffusion
+
+      !show_diffusion_info = .true. ! terminal output for diffusion
+      !show_diffusion_substep_info = .true. ! terminal output for diffusion
+      do_element_diffusion = .false. ! determines whether or not we do diffusion
+      diffusion_dt_limit = 3.15d7 ! no element diffusion if dt < this limit (in seconds)
+      diffusion_T_full_on = 1d3
+      diffusion_T_full_off = 1d3
+
+      D_mix_ignore_diffusion = 1d2 ! turn off diffusion in any region with D_mix greater than this
+      diffusion_calculates_ionization = .true.
+      diffusion_num_classes = 8 ! number of classes of species for diffusion calculations
+      diffusion_class_representative(1) = 'h1'
+      diffusion_class_representative(2) = 'he3'
+      diffusion_class_representative(3) = 'he4'
+      diffusion_class_representative(4) = 'c12'
+      diffusion_class_representative(5) = 'n14'
+      diffusion_class_representative(6) = 'o16'
+      diffusion_class_representative(7) = 'ne20'
+      diffusion_class_representative(8) = 'mg24'
+
+      ! in ascending order.  species goes into 1st class with A_max >= species A
+      diffusion_class_A_max(1) = 2
+      diffusion_class_A_max(2) = 3
+      diffusion_class_A_max(3) = 4
+      diffusion_class_A_max(4) = 12
+      diffusion_class_A_max(5) = 14
+      diffusion_class_A_max(6) = 16
+      diffusion_class_A_max(7) = 20
+      diffusion_class_A_max(8) = 10000
+      diffusion_use_isolve = .true.
+      diffusion_rtol_for_isolve = 1d-4
+      diffusion_atol_for_isolve = 1d-5
+      diffusion_maxsteps_for_isolve = 1000
+      diffusion_isolve_solver = 'ros2_solver'
+
+   !# rotation controls
+      set_min_am_nu_non_rot = .true.
+      min_am_nu_non_rot = 1d8
+
+   !## mass loss
+      ! cool_wind_RGB_scheme = 'Reimers'
+      ! RGB_to_AGB_wind_switch = 1d-4
+      ! Reimers_scaling_factor = 0.2d0
+      ! Blocker_scaling_factor = 0.2d0
+
+   !# controls for output
+
+      star_history_name = '{star_history_name}'
+
+      terminal_interval = 100
+      write_header_frequency = 1
+      photo_interval = -1
+      history_interval = 1
+      write_profiles_flag = .false.
+      write_pulse_data_with_profile = .true.
+      pulse_data_format = 'FGONG'
+      add_atmosphere_to_pulse_data = .false. !.true.
+      profile_data_prefix = 'profile' !change this
+      profiles_index_name = 'profiles.index' !change this
+      profile_interval = 5
+      max_num_profile_models = 18000
+
+   !# when to stop
+
+      max_model_number = 40000
+      ! stop_at_phase_He_Burn = .true.
+      xa_central_lower_limit_species(1) = 'h1'
+      xa_central_lower_limit(1) = 1d-3 !0.7
+      max_age = 1.3e10
+
+      dt_years_for_steps_before_max_age = 1d6
+
+
+   !# timestep controls
+
+      !min_timestep_limit = 1d-10 !1d-6
+      max_timestep = 3.15d15  ! in seconds.  max_timestep <= 0 means no upper limit.
+
+      ! these are evolutionary step controls
+      ! for seismic step controls see src/run_star_extras.f90
+
+      ! delta_lgTeff_hard_limit = 0.001
+      ! delta_lgL_limit_L_min = 0.0
+      ! delta_lgL_hard_limit = 0.004
+      ! delta_XH_cntr_limit = 0.002d0
+
+
+   !# asteroseismology controls
+
+      get_delta_nu_from_scaled_solar = .false.
+      nu_max_sun = 3090d0
+      delta_nu_sun = 135.1d0
+      astero_Teff_sun = 5772d0
+      delta_Pg_mode_freq = 1
+
+      !# Brunt controls
+
+         calculate_Brunt_N2 = .true. 
+         num_cells_for_smooth_brunt_B = 0
+   
+   !# atm
+
+      atm_option = 'table'
+      atm_table = 'photosphere'
+      
+      atm_off_table_option = 'T_tau'
+      atm_T_tau_relation =  'Eddington'
+      atm_T_tau_opacity = 'iterated' !'iterated'
+
+   !# miscellaneous controls
+   
+      warn_when_large_rel_run_E_err = 99d0 !0.02d0
+
+      use_gold_tolerances = .true.
+      
+      convergence_ignore_equL_residuals = .false. ! needed during flash
+      ! note: can get rid of this if turn on conv_vel's.  just takes more steps.
+      ! use_dedt_form_of_energy_eqn = .true.
+      energy_eqn_option = 'dedt'
+
+      varcontrol_target = 1d-4 !1d-3 in 1M_to_wd test suite !1d-4
+      mesh_delta_coeff = 1.0
+
+      max_resid_jump_limit = 1d8
+      
+
+      
+/ ! end of controls namelist
+
+
+
+
+&pgstar
+   
+/ ! end of pgstar namelist
