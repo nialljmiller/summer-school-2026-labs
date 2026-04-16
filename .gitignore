@@ -8,7 +8,7 @@ star
 *.mod
 
 # MESA run output
-**/LOGS/
+LOGS/
 
 # Images and media
 photos/
@@ -20,7 +20,6 @@ photos/
 *.mov
 *.avi
 *.mkv
-*.gif
 
 # Undefined/junk
 undefined
