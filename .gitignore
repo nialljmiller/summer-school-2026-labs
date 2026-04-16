@@ -2,3 +2,25 @@
 /resources
 .hugo_build.lock
 .DS_Store
+
+# MESA compiled binary and model files
+star
+*.mod
+
+# MESA run output
+**/LOGS/
+
+# Images and media
+photos/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.gif
+
+# Undefined/junk
+undefined

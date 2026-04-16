@@ -1,0 +1,149 @@
+&star_job
+
+   !# output
+      pgstar_flag = .false.
+      save_model_when_terminate = .true.
+      save_model_filename = 'final.mod'
+      save_photo_when_terminate = .true.
+      show_log_description_at_start = .false.
+      history_columns_file = 'history_columns.list'
+      profile_columns_file = 'profile_columns.list'
+
+   !# starting model
+      load_saved_model = .false.
+      create_pre_main_sequence_model = .true.
+      pre_ms_T_c = 9.9e5
+
+   !# composition
+      set_uniform_initial_composition = .false.
+      initial_zfracs = 6 ! AGSS09_zfracs
+
+      set_initial_model_number = .true.
+      initial_model_number = 0
+
+   !# rotation
+      new_rotation_flag = .true.
+      change_rotation_flag = .true.
+      change_initial_rotation_flag = .false.
+      new_omega = 1.81805130416076d-05 ! ~4 day period
+      set_omega = .true.
+      set_initial_omega = .true.
+
+   !# nuclear reactions
+      change_net = .true.
+      new_net_name = 'pp_and_cno_extras.net'
+
+/ ! end of star_job namelist
+
+
+&eos
+
+/ ! end of eos namelist
+
+
+&kap
+      Zbase = 0.0134
+      kap_file_prefix = 'a09'
+      kap_lowT_prefix = 'lowT_fa05_a09p'
+      kap_CO_prefix = 'a09_co'
+
+/ ! end of kap namelist
+
+
+&controls
+
+   !# other hooks
+      use_other_torque = .true.
+
+   !# starting model
+      initial_mass = 1.0  ! change this
+      initial_z = 0.0134
+      initial_y = 0.2485
+
+   !# mixing
+      mixing_length_alpha = 1.9
+      use_Ledoux_criterion = .false.
+      alpha_semiconvection = 0.1
+      thermohaline_coeff = 666.0
+      num_cells_for_smooth_gradL_composition_term = 0
+      threshold_for_smooth_gradL_composition_term = 0
+      MLT_option = 'Henyey'
+
+   !# overshooting
+      do_conv_premix = .true.
+      overshoot_scheme(1) = ''
+      overshoot_zone_type(1) = ''
+      overshoot_zone_loc(1) = ''
+      overshoot_bdy_loc(1) = ''
+      overshoot_f(1) = 0
+      overshoot_f0(1) = 0
+
+      overshoot_scheme(2) = 'exponential'
+      overshoot_zone_type(2) = 'any'
+      overshoot_zone_loc(2) = 'shell'
+      overshoot_bdy_loc(2) = 'any'
+      overshoot_f(2) = 0.0174
+      overshoot_f0(2) = 0.0087
+
+   !# rotation
+      set_min_am_nu_non_rot = .true.
+      min_am_nu_non_rot = 1d8
+
+   !# output
+      star_history_name = 'history.data'
+      terminal_interval = 100
+      write_header_frequency = 1
+      photo_interval = -1
+      history_interval = 1
+      write_profiles_flag = .false.
+      write_pulse_data_with_profile = .true.
+      pulse_data_format = 'FGONG'
+      add_atmosphere_to_pulse_data = .false.
+      profile_interval = 5
+      max_num_profile_models = 18000
+
+   !# when to stop
+      xa_central_lower_limit_species(1) = 'h1'
+      xa_central_lower_limit(1) = 1d-3
+      max_age = 1.3e10
+
+   !# timestep
+      max_timestep = 3.15d15 ! in seconds
+
+   !# asteroseismology
+      get_delta_nu_from_scaled_solar = .false.
+      nu_max_sun = 3090d0
+      delta_nu_sun = 135.1d0
+      astero_Teff_sun = 5772d0
+      delta_Pg_mode_freq = 1
+      calculate_Brunt_N2 = .true.
+      num_cells_for_smooth_brunt_B = 0
+
+   !# atmosphere
+      atm_option = 'table'
+      atm_table = 'photosphere'
+      atm_off_table_option = 'T_tau'
+      atm_T_tau_relation = 'Eddington'
+      atm_T_tau_opacity = 'iterated'
+
+   !# miscellaneous
+      warn_when_large_rel_run_E_err = 99d0
+      use_gold_tolerances = .true.
+      energy_eqn_option = 'dedt'
+      varcontrol_target = 1d-4
+      mesh_delta_coeff = 1.0
+      max_resid_jump_limit = 1d8
+
+/ ! end of controls namelist
+
+
+&colors
+      use_colors = .true.
+      make_csv = .true.
+      sed_per_model = .true.
+/
+
+
+&pgstar
+
+/ ! end of pgstar namelist
