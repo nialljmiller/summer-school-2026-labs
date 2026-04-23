@@ -5,29 +5,38 @@ author: Niall Miller
 
 # Lab 3: Asteroseismology
 
-In this lab we will use MESA to compute asteroseismic observables and explore how they constrain stellar ages. The three quantities we focus on are the large frequency separation $\Delta\nu$, the small frequency separation $\delta\nu_{02}$, and the g-mode period spacing $\Delta\Pi_g$. All of the code that computes these is already implemented in `run_star_extras.f90` — you do not need to modify it. Your job is to run the models, understand the physics behind each quantity, and combine the results across the group.
+In this lab we will use MESA to compute asteroseismic observables and explore how they constrain stellar ages. The two quantities we focus on are the large frequency separation $\Delta\nu$ and the small frequency separation $\delta\nu_{02}$. All of the code that computes these is already implemented in `run_star_extras.f90` — you do not need to modify it. Your job is to run the models, understand the physics behind each quantity, and combine the results across the group.
 
 > [!NOTE]
-> This lab builds on the models from Labs 1 and 2. Make sure your `LOGS/history.data` is present before starting.
+> This lab builds on the models from Labs 1 and 2. Your `inlist_run` is pre-configured — check that your assigned mass is set correctly before starting.
 
 ## Background
+
+<!-- p-mode conceptual intro goes here. Points to cover:
+- p-modes are acoustic standing waves; restoring force is pressure
+- characterised by radial order n and angular degree ell; disk-integrated photometry gives us low-ell modes
+- the oscillation cavity spans most of the stellar interior so p-mode frequencies average over the whole star
+- the power spectrum shows a regular comb of peaks separated by Delta_nu; the small offset between ell=0 and ell=2 neighbours is delta_nu_02
+- g-modes are buoyancy-driven and confined to the radiative interior — not observable at the surface for solar-type stars, so we do not use them here
+- add a schematic or echelle diagram if one is available
+-->
 
 Stars oscillate in resonant modes. The frequencies of these modes encode information about the stellar interior — in particular, the sound speed profile and the Brunt–Väisälä frequency. By measuring just a few summary statistics of the oscillation spectrum, we can constrain both the global structure and the interior chemical composition of a star.
 
 ## Setup
 
-Your work directory already contains a pre-compiled MESA model and a `run_star_extras.f90` with all the seismic quantities implemented. Copy it to your working area and run it:
+Your work directory already contains a pre-compiled MESA model and a `run_star_extras.f90` with all the seismic quantities implemented. Copy it to your working area and compile:
 
 ```bash
 cp -r Lab3 my_lab3
 cd my_lab3
-./rn
+./clean && ./mk
 ```
 
-The extra history columns written by `run_star_extras` will appear automatically in `LOGS/history.data`. You do not need to add anything to `history_columns.list` for these.
+The extra history columns written by `run_star_extras` will appear automatically in your history file. You do not need to modify `history_columns.list`.
 
 > [!IMPORTANT]
-> Do **not** edit `src/run_star_extras.f90`. All the physics is already there. If you need to recompile, run `./mk` without making any changes to the source.
+> Do **not** edit `src/run_star_extras.f90`. All the physics is already there.
 
 ---
 
@@ -71,83 +80,65 @@ The loop computes $dc_s/r$ shell by shell, approximating the radial derivative o
 
 ---
 
-## The g-mode period spacing $\Delta\Pi_g$
+## Exercise 1: Run the model and watch it evolve
 
-G-modes are buoyancy-driven oscillations confined to the radiative interior. Their period spacing is set by the integral of the Brunt–Väisälä frequency $N$ over the g-mode cavity:
+Run the model:
 
-$$ \Delta\Pi_g = \frac{\pi^2 \sqrt{2}}{\displaystyle\int_\mathrm{cavity} \frac{N}{r} \, dr} $$
-
-```fortran
-delta_Pg_int = 0.
-entered_g_mode_cavity = .false.
-do k = s% nz, 2, -1
-   dr = s% rmid(k-1) - s% rmid(k)
-   if (s% brunt_N2(k) > 0) then
-      entered_g_mode_cavity = .true.
-      delta_Pg_int = delta_Pg_int + sqrt(s% brunt_N2(k)) / s% r(k) * dr
-   else
-      if (entered_g_mode_cavity) exit
-   end if
-end do
-delta_Pg_int = (3.1415926535**2.) * sqrt(2.0) / delta_Pg_int
+```bash
+./rn
 ```
 
-The loop walks inward from the surface (index `nz` to `2`). It only accumulates $\sqrt{N^2}/r \cdot dr$ where $N^2 > 0$, i.e. inside the radiative g-mode cavity. The `entered_g_mode_cavity` flag ensures the loop exits as soon as it leaves the cavity on the inner side, preventing the convective core from being accidentally included. The final line applies the prefactor $\pi^2\sqrt{2}$ to give $\Delta\Pi_g$ in seconds.
+pgstar is enabled by default. As the model runs you will see the evolution of $\Delta\nu$, $\delta\nu_{02}$, and the HR diagram update in real time.
+
+<!-- pgstar panel layout to finalise once inlist_pgstar is settled: HR diagram, Delta_nu vs age, delta_nu02 vs age, colour-magnitude. Confirm history column names used in History_Track panels. -->
+
+Watch how $\Delta\nu$ and $\delta\nu_{02}$ evolve as the star ages. Which changes faster? What is happening physically in the stellar interior at that point?
 
 ---
 
-## Exercise 1: Reading the seismic history columns
+## Exercise 2: Plot the seismic quantities with Python
 
-Once your run has finished, open `LOGS/history.data` and locate the columns `Delta_nu_int`, `delta_nu02_int`, and `delta_Pg_int`. Plot each as a function of stellar age.
-
-{{< details title="Hint: Python snippet to plot the extra columns" closed="true" >}}
+Once the run has finished, use `mesa_reader` to load the history file and plot $\Delta\nu$ and $\delta\nu_{02}$ as a function of stellar age.
 
 ```python
-import numpy as np
+import mesa_reader as mr
 import matplotlib.pyplot as plt
 
-data = np.genfromtxt('LOGS/history.data', names=True, skip_header=5)
+h = mr.MesaData('LOGS/history.data')
 
-fig, axes = plt.subplots(3, 1, sharex=True)
-age = data['star_age'] / 1e9
+fig, axes = plt.subplots(2, 1, sharex=True)
 
-axes[0].plot(age, data['Delta_nu_int'] * 1e6)
+axes[0].plot(h.star_age / 1e9, h.Delta_nu_int * 1e6)
 axes[0].set_ylabel(r'$\Delta\nu$ ($\mu$Hz)')
 
-axes[1].plot(age, data['delta_nu02_int'] * 1e6)
+axes[1].plot(h.star_age / 1e9, h.delta_nu02_int * 1e6)
 axes[1].set_ylabel(r'$\delta\nu_{02}$ ($\mu$Hz)')
-
-axes[2].plot(age, data['delta_Pg_int'])
-axes[2].set_ylabel(r'$\Delta\Pi_g$ (s)')
-axes[2].set_xlabel('Age (Gyr)')
+axes[1].set_xlabel('Age (Gyr)')
 
 plt.tight_layout()
 plt.show()
 ```
 
-{{< /details >}}
+<!-- also add colour vs magnitude panel here once Lab 2 column names are confirmed -->
 
-Which quantity changes fastest with age? Which would give the tightest age constraint for a star of your mass?
+How does the rate of change of each quantity compare to what you saw in the CMD from Lab 2?
 
-## Exercise 2: Crowd-source the seismic grid
+---
 
-Enter your results at 1 Gyr into the shared spreadsheet:
+## Exercise 3: Crowd-source the seismic grid
+
+Enter your values at the age closest to 1 Gyr into the shared spreadsheet:
 
 | Column | Value |
 |--------|-------|
 | `initial_mass` | your assigned mass ($M_\odot$) |
 | $\Delta\nu$ at 1 Gyr | `Delta_nu_int` in $\mu$Hz |
 | $\delta\nu_{02}$ at 1 Gyr | `delta_nu02_int` in $\mu$Hz |
-| $\Delta\Pi_g$ at 1 Gyr | `delta_Pg_int` in s |
 
-Once everyone has contributed, we will look at the full grid and discuss how well the seismic observables separate stars of different masses at the same age, and how this compares to the CMD separation from Lab 2.
-
-## Bonus: Combined age constraints
-
-Using both the colour–magnitude information from Lab 2 and the seismic observables from this lab, consider which combination of observables gives the tightest age constraint for a solar-type star. Which observable is least degenerate with metallicity?
+Once everyone has contributed, look at the full grid. How well do $\Delta\nu$ and $\delta\nu_{02}$ separate stars of different masses at the same age? How does that compare to the CMD separation from Lab 2?
 
 {{< details title="Discussion prompt" closed="true" >}}
 
-Think about the following: $\Delta\nu$ scales with mean density, so it is sensitive to both mass and radius. $\delta\nu_{02}$ is sensitive to the core sound speed gradient, which depends on the central hydrogen abundance — almost independent of the envelope. How does adding $\delta\nu_{02}$ to an isochrone fit change the mass–age degeneracy?
+$\Delta\nu$ scales with mean density, so it is sensitive to both mass and radius. $\delta\nu_{02}$ is sensitive to the core sound speed gradient, which depends on the central hydrogen abundance — almost independent of the envelope. How does adding $\delta\nu_{02}$ to an isochrone fit change the mass–age degeneracy? Which observable from Lab 2 does it complement most effectively?
 
 {{< /details >}}
