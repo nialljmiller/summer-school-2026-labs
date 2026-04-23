@@ -1,37 +1,44 @@
 &star_job
 
    !# output
+
       pgstar_flag = .false.
       save_model_when_terminate = .true.
-      save_model_filename = 'final.mod'
+      save_model_filename = 'index000003.mod'
       save_photo_when_terminate = .true.
       show_log_description_at_start = .false.
       history_columns_file = 'history_columns.list'
       profile_columns_file = 'profile_columns.list'
 
    !# starting model
+
       load_saved_model = .false.
       create_pre_main_sequence_model = .true.
       pre_ms_T_c = 9.9e5
 
-   !# composition
+   !# modifications to model
+
       set_uniform_initial_composition = .false.
-      initial_zfracs = 6 ! AGSS09_zfracs
+      initial_zfracs = 6 ! GS98_zfracs = 3,  AGSS09_zfracs = 6
 
       set_initial_model_number = .true.
       initial_model_number = 0
 
-   !# rotation
       new_rotation_flag = .true.
       change_rotation_flag = .true.
       change_initial_rotation_flag = .false.
-      new_omega = 1.81805130416076d-05 ! ~4 day period
+
+      new_omega = 1.81805130416076d-05 ! 4 days
       set_omega = .true.
       set_initial_omega = .true.
 
    !# nuclear reactions
+
       change_net = .true.
       new_net_name = 'pp_and_cno_extras.net'
+
+   !# misc
+      num_steps_for_garbage_collection = 0 ! for artemis cluster
 
 / ! end of star_job namelist
 
@@ -55,12 +62,14 @@
    !# other hooks
       use_other_torque = .true.
 
-   !# starting model
-      initial_mass = 1.0  ! change this
+   !# specifications for starting model
+
+      initial_mass = 0.6  ! change this - each team runs a different mass
       initial_z = 0.0134
       initial_y = 0.2485
 
-   !# mixing
+   !# mixing parameters
+
       mixing_length_alpha = 1.9
       use_Ledoux_criterion = .false.
       alpha_semiconvection = 0.1
@@ -69,7 +78,7 @@
       threshold_for_smooth_gradL_composition_term = 0
       MLT_option = 'Henyey'
 
-   !# overshooting
+   !## overshooting
       do_conv_premix = .true.
       overshoot_scheme(1) = ''
       overshoot_zone_type(1) = ''
@@ -85,12 +94,47 @@
       overshoot_f(2) = 0.0174
       overshoot_f0(2) = 0.0087
 
-   !# rotation
+   !## diffusion
+
+      do_element_diffusion = .false.
+      diffusion_dt_limit = 3.15d7
+      diffusion_T_full_on = 1d3
+      diffusion_T_full_off = 1d3
+
+      D_mix_ignore_diffusion = 1d2
+      diffusion_calculates_ionization = .true.
+      diffusion_num_classes = 8
+      diffusion_class_representative(1) = 'h1'
+      diffusion_class_representative(2) = 'he3'
+      diffusion_class_representative(3) = 'he4'
+      diffusion_class_representative(4) = 'c12'
+      diffusion_class_representative(5) = 'n14'
+      diffusion_class_representative(6) = 'o16'
+      diffusion_class_representative(7) = 'ne20'
+      diffusion_class_representative(8) = 'mg24'
+
+      diffusion_class_A_max(1) = 2
+      diffusion_class_A_max(2) = 3
+      diffusion_class_A_max(3) = 4
+      diffusion_class_A_max(4) = 12
+      diffusion_class_A_max(5) = 14
+      diffusion_class_A_max(6) = 16
+      diffusion_class_A_max(7) = 20
+      diffusion_class_A_max(8) = 10000
+      diffusion_use_isolve = .true.
+      diffusion_rtol_for_isolve = 1d-4
+      diffusion_atol_for_isolve = 1d-5
+      diffusion_maxsteps_for_isolve = 1000
+      diffusion_isolve_solver = 'ros2_solver'
+
+   !# rotation controls
       set_min_am_nu_non_rot = .true.
       min_am_nu_non_rot = 1d8
 
-   !# output
-      star_history_name = 'history.data'
+   !# controls for output
+
+      star_history_name = 'index000003.history'
+
       terminal_interval = 100
       write_header_frequency = 1
       photo_interval = -1
@@ -99,49 +143,61 @@
       write_pulse_data_with_profile = .true.
       pulse_data_format = 'FGONG'
       add_atmosphere_to_pulse_data = .false.
+      profile_data_prefix = 'profile'
+      profiles_index_name = 'profiles.index'
       profile_interval = 5
       max_num_profile_models = 18000
 
    !# when to stop
+
+      max_model_number = 40000
       xa_central_lower_limit_species(1) = 'h1'
       xa_central_lower_limit(1) = 1d-3
       max_age = 1.3e10
 
-   !# timestep
-      max_timestep = 3.15d15 ! in seconds
+      dt_years_for_steps_before_max_age = 1d6
 
-   !# asteroseismology
+   !# timestep controls
+
+      max_timestep = 3.15d15  ! in seconds
+
+      ! for seismic step controls see src/run_star_extras.f90
+
+   !# asteroseismology controls
+
       get_delta_nu_from_scaled_solar = .false.
       nu_max_sun = 3090d0
       delta_nu_sun = 135.1d0
       astero_Teff_sun = 5772d0
-      delta_Pg_mode_freq = 1
-      calculate_Brunt_N2 = .true.
-      num_cells_for_smooth_brunt_B = 0
 
-   !# atmosphere
+      !# Brunt controls
+         calculate_Brunt_N2 = .true.
+         num_cells_for_smooth_brunt_B = 0
+
+   !# atm
+
       atm_option = 'table'
       atm_table = 'photosphere'
+
       atm_off_table_option = 'T_tau'
       atm_T_tau_relation = 'Eddington'
       atm_T_tau_opacity = 'iterated'
 
-   !# miscellaneous
+   !# miscellaneous controls
+
       warn_when_large_rel_run_E_err = 99d0
+
       use_gold_tolerances = .true.
+
+      convergence_ignore_equL_residuals = .false.
       energy_eqn_option = 'dedt'
-      varcontrol_target = 1d-4
+
+      varcontrol_target = 1d-3
       mesh_delta_coeff = 1.0
+
       max_resid_jump_limit = 1d8
 
 / ! end of controls namelist
-
-
-&colors
-      use_colors = .true.
-      make_csv = .true.
-      sed_per_model = .true.
-/
 
 
 &pgstar
