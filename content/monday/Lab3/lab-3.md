@@ -4,91 +4,51 @@ author: Niall Miller
 
 # Lab 3: Asteroseismology
 
-In this lab we will use MESA to compute asteroseismic observables and explore how they constrain stellar ages. The two quantities we focus on are the large frequency separation $\Delta\nu$ and the small frequency separation $\delta\nu_{02}$. All of the code that computes these is already implemented in `run_star_extras.f90` — you do not need to modify it. Your job is to run the models, understand the physics behind each quantity, and combine the results across the group.
+In Labs 1 and 2 we used rotation periods and CMD positions to constrain stellar ages. In this lab we add a third technique: asteroseismology. We will compute two seismic observables — the large frequency separation $\Delta\nu$ and the small frequency separation $\delta\nu_{02}$ — and ask whether they constrain ages better than what we measured in Lab 2. We will also build a map of which stars are actually accessible to real space missions.
 
-> [!NOTE]
-> This lab builds on the models from Labs 1 and 2. Your `inlist_run` is pre-configured — check that your assigned mass is set correctly before starting.
+All of the code that computes the seismic quantities is already implemented in `run_star_extras.f90`. You do not need to modify it. Your job is to configure the run, interpret the outputs, and combine results across the group.
 
-## Background
+---
 
-<!-- p-mode conceptual intro goes here. Points to cover:
-- p-modes are acoustic standing waves; restoring force is pressure
-- characterised by radial order n and angular degree ell; disk-integrated photometry gives us low-ell modes
-- the oscillation cavity spans most of the stellar interior so p-mode frequencies average over the whole star
-- the power spectrum shows a regular comb of peaks separated by Delta_nu; the small offset between ell=0 and ell=2 neighbours is delta_nu_02
-- g-modes are buoyancy-driven and confined to the radiative interior — not observable at the surface for solar-type stars, so we do not use them here
-- add a schematic or echelle diagram if one is available
--->
+## Step 1 — Setup
 
-Stars oscillate in resonant modes. The frequencies of these modes encode information about the stellar interior — in particular, the sound speed profile and the Brunt–Väisälä frequency. By measuring just a few summary statistics of the oscillation spectrum, we can constrain both the global structure and the interior chemical composition of a star.
-
-## Setup
-
-Your work directory already contains a pre-compiled MESA model and a `run_star_extras.f90` with all the seismic quantities implemented. Copy it to your working area and compile:
+This lab builds directly on Lab 2. Copy your Lab 2 working directory into a new one and replace `run_star_extras.f90` with the Lab 3 version:
 
 ```bash
-cp -r Lab3 my_lab3
-cd my_lab3
+cp -r lab2 lab3
+cd lab3
+cp /path/to/Lab3/src/run_star_extras.f90 src/
 ./clean && ./mk
 ```
 
-The extra history columns written by `run_star_extras` will appear automatically in your history file. You do not need to modify `history_columns.list`.
-
 > [!IMPORTANT]
-> Do **not** edit `src/run_star_extras.f90`. All the physics is already there.
+> Do **not** edit `src/run_star_extras.f90`. All the seismic physics is already implemented there.
 
----
+Your colors module setup from Lab 2 carries over automatically — no changes needed to the `&colors` namelist.
 
-## The large frequency separation $\Delta\nu$
-
-The large frequency separation is the average spacing between p-modes of the same angular degree $\ell$ and consecutive radial order $n$. It is related to the sound crossing time of the star:
-
-$$ \Delta\nu = \left( 2 \int_0^R \frac{dr}{c_s} \right)^{-1} $$
+Now open `inlist_run` and set your assigned mass:
 
 ```fortran
-Delta_nu_int = 0.
-do k = 2, s% nz, 1
-   dr = s% rmid(k-1) - s% rmid(k)
-   Delta_nu_int = Delta_nu_int + dr/s% csound(k)
-end do
-Delta_nu_int = 1./(2.*Delta_nu_int)
+initial_mass = X.X   ! set to your assigned value
 ```
 
-The loop accumulates $dr/c_s$ from the centre to the surface, building up the total sound travel time. The final line takes the reciprocal and divides by 2 to give $\Delta\nu$ in Hz. Because $\Delta\nu \propto \sqrt{M/R^3}$, it is a measure of the mean stellar density — it decreases as the star expands during main sequence evolution.
+Mass assignments for this lab are: **0.4, 0.6, 0.8, 0.9, 1.0, 1.1, 1.2** $M_\odot$ — one per team.
 
 ---
 
-## The small frequency separation $\delta\nu_{02}$
+## Step 2 — Enable pgstar
 
-The small frequency separation is the offset between $\ell=0$ and $\ell=2$ modes of similar frequency. Unlike $\Delta\nu$, it is sensitive to the gradient of the sound speed in the stellar core, and therefore directly to the central hydrogen abundance:
-
-$$ \delta\nu_{02} \approx -\frac{2\,\Delta\nu}{\pi^2\,\nu_\mathrm{max}} \left( \int_0^R \frac{1}{r} \frac{dc_s}{dr} \, dr - \frac{c_s(R)}{R} \right) $$
+The inlist currently has `pgstar_flag = .false.`. Change it to `.true.` in `&star_job`:
 
 ```fortran
-delta_nu02_int = 0.
-nu_max = s% nu_max * 1d-6
-do k = 2, s% nz, 1
-   dc = s% csound(k-1) - s% csound(k)
-   delta_nu02_int = delta_nu02_int + dc / s% rmid(k)
-end do
-delta_nu02_int = delta_nu02_int - s% csound(1)/s% r(1)
-delta_nu02_int = -2 * Delta_nu_int * delta_nu02_int / (3.1415926535**2. * nu_max)
+pgstar_flag = .true.
 ```
 
-The loop computes $dc_s/r$ shell by shell, approximating the radial derivative of the sound speed as a finite difference (`dc = csound(k-1) - csound(k)`). The surface boundary term $c_s(R)/R$ is subtracted after the loop. The whole integral is then scaled by $-2\Delta\nu/(\pi^2\nu_\mathrm{max})$ to give $\delta\nu_{02}$ in Hz. Because the sound speed gradient in the core steepens as hydrogen is depleted, $\delta\nu_{02}$ decreases monotonically with age — making it a direct age clock.
-
----
-
-## Exercise 1: Run the model and watch it evolve
-
-### pgstar setup
-
-The pgstar configuration lives in `inlist_run` inside the `&pgstar` namelist. It is already enabled (`pgstar_flag = .true.` in `&star_job`). The full namelist to paste in is below — it sets up a six-panel grid that updates in real time as the model evolves.
+Then replace the empty `&pgstar` block in `inlist_run` with the following. This sets up a six-panel display that updates in real time as the model evolves:
 
 ```fortran
 &pgstar
 
-  ! Global window settings
   file_white_on_black_flag = .false.
 
   Grid1_win_flag = .true.
@@ -110,7 +70,7 @@ The pgstar configuration lives in `inlist_run` inside the `&pgstar` namelist. It
   Grid1_ybot = 0.02
   Grid1_ytop = 0.98
 
-  ! Panel 1 — HR diagram (top-left)
+  ! Panel 1 — HR diagram
   Grid1_plot_name(1) = 'HR'
   Grid1_plot_row(1) = 1
   Grid1_plot_rowspan(1) = 4
@@ -123,8 +83,9 @@ The pgstar configuration lives in `inlist_run` inside the `&pgstar` namelist. It
   Grid1_txt_scale_factor(1) = 0.55
   HR_title = 'HR diagram'
 
-  ! Panel 2 — Colour-magnitude diagram (top-centre-left)
-  ! Update History_Track1_xname and yname to match your filter columns.
+  ! Panel 2 — Colour-magnitude diagram
+  ! History_Track1_xname must be a single pre-computed column.
+  ! Update to match the exact color column name in your history file.
   Grid1_plot_name(2) = 'History_Track1'
   Grid1_plot_row(2) = 1
   Grid1_plot_rowspan(2) = 4
@@ -136,14 +97,14 @@ The pgstar configuration lives in `inlist_run` inside the `&pgstar` namelist. It
   Grid1_plot_pad_bot(2) = 0.06
   Grid1_txt_scale_factor(2) = 0.55
   History_Track1_title = 'CMD'
-  History_Track1_xname = 'Johnson_B_minus_Johnson_V'
-  History_Track1_yname = 'Johnson_V'
-  History_Track1_xaxis_label = 'B - V'
-  History_Track1_yaxis_label = 'V (mag)'
+  History_Track1_xname = 'J_MINUS_K'   ! placeholder — update to your computed color column
+  History_Track1_yname = 'K'
+  History_Track1_xaxis_label = 'J - K'
+  History_Track1_yaxis_label = 'K (mag)'
   History_Track1_reverse_y = .true.
   History_Track1_num_panels = 1
 
-  ! Panel 3 — Delta_nu vs age (top-right)
+  ! Panel 3 — Delta_nu vs age
   Grid1_plot_name(3) = 'History_Track2'
   Grid1_plot_row(3) = 1
   Grid1_plot_rowspan(3) = 4
@@ -164,7 +125,7 @@ The pgstar configuration lives in `inlist_run` inside the `&pgstar` namelist. It
   History_Track2_ymin = -1
   History_Track2_ymax = -1
 
-  ! Panel 4 — delta_nu02 vs age (top far-right)
+  ! Panel 4 — delta_nu02 vs age
   Grid1_plot_name(4) = 'History_Track3'
   Grid1_plot_row(4) = 1
   Grid1_plot_rowspan(4) = 4
@@ -185,7 +146,7 @@ The pgstar configuration lives in `inlist_run` inside the `&pgstar` namelist. It
   History_Track3_ymin = -1
   History_Track3_ymax = -1
 
-  ! Panel 5 — Abundance profile (bottom-left, wide)
+  ! Panel 5 — Abundance profile
   Grid1_plot_name(5) = 'Abundance'
   Grid1_plot_row(5) = 5
   Grid1_plot_rowspan(5) = 3
@@ -205,7 +166,7 @@ The pgstar configuration lives in `inlist_run` inside the `&pgstar` namelist. It
   Abundance_xaxis_name = 'mass'
   Abundance_log_mass_frac_min = -4.0
 
-  ! Panel 6 — Text summary (bottom-right)
+  ! Panel 6 — Text summary
   Grid1_plot_name(6) = 'Text_Summary1'
   Grid1_plot_row(6) = 5
   Grid1_plot_rowspan(6) = 3
@@ -239,47 +200,40 @@ The pgstar configuration lives in `inlist_run` inside the `&pgstar` namelist. It
 ```
 
 > [!TIP]
-> The CMD panel uses `History_Track1_xname = 'Johnson_B_minus_Johnson_V'` as a placeholder. Once you have decided on your filter system, update this to the actual computed colour column name in your history file. pgstar cannot subtract two columns directly — you will need to add a computed colour column in `run_star_extras` or use a pre-computed difference column if the colors module outputs one.
+> The CMD panel uses `History_Track1_xname = 'J_MINUS_K'` as a placeholder. pgstar cannot subtract two columns directly — you will need to confirm the exact pre-computed color column name that your run writes to `history.data` and update this accordingly.
 
-### Colors module setup
+---
 
-The colors module computes synthetic photometry at each timestep by interpolating a stellar atmosphere grid and convolving with filter transmission curves. To enable it, add `use_colors_library = .true.` in `&star_job`, and add the following namelist to `inlist_run` between `&controls` and `&pgstar`:
-
-```fortran
-&colors
-
-   ! Atmosphere grid: Kurucz2003all covers Teff 3500-50000 K, logg 0-5, [M/H] -2.5 to +0.5
-   stellar_atm = 'Kurucz2003all'
-
-   ! Filter system index file — lists which .dat filter files to load.
-   ! Column names in history.data are the filter filenames with .dat stripped.
-   ! e.g. Johnson_B.dat -> Johnson_B, Johnson_V.dat -> Johnson_V
-   instrument = 'Johnson'   ! update to your chosen filter system
-
-   ! Magnitude system
-   mag_system = 'Vega'
-
-   ! Distance in parsecs (10 pc gives absolute magnitudes)
-   distance = 10d0
-
-/ ! end of colors namelist
-```
-
-The magnitude columns will then appear automatically in `history.data` alongside the seismic columns.
-
-### Run
+## Step 3 — Run the model
 
 ```bash
 ./rn
 ```
 
-Watch how $\Delta\nu$, $\delta\nu_{02}$, and the CMD position all evolve together. Which seismic quantity changes fastest? How does the rate of change compare to the star's motion in the CMD?
+The model will run to the end of the main sequence (TAMS). Watch the six panels as the star evolves. Pay attention to:
+
+- How quickly does $\Delta\nu$ change compared to the CMD position?
+- How does $\delta\nu_{02}$ behave — does it change monotonically?
+- What is happening to the interior composition (Panel 5) at the same time?
+
+> [!NOTE]
+> Lower mass stars take longer to reach TAMS. If your model is still running when you need to move to the Python exercises, you have enough history data to proceed — you do not need to wait for the run to finish.
 
 ---
 
-## Exercise 2: Plot the seismic quantities with Python
+## Step 4 — Age diagnostics
 
-Once the run has finished, use `mesa_reader` to reproduce the seismic and photometric history plots from Exercise 1.
+<!-- TO BE DEFINED AT NEXT MEETING -->
+<!-- Decision pending on whether this is a qualitative discussion or a quantitative Python exercise comparing age uncertainty from CMD vs seismic observables. -->
+
+> [!NOTE]
+> Content for this section will be added after the next team meeting.
+
+---
+
+## Step 5 — Python: reproduce the history plots
+
+Once the run has enough history data, use `mesa_reader` to reproduce the four key plots from the pgstar display.
 
 ```python
 import mesa_reader as mr
@@ -297,47 +251,82 @@ axes[0, 0].set_ylabel(r'$\log\,L/L_\odot$')
 axes[0, 0].set_title('HR diagram')
 
 # Colour-magnitude diagram
-# column names depend on your chosen filter system — update as needed
-axes[0, 1].plot(h.Johnson_B - h.Johnson_V, h.Johnson_V)
+# Update column names to match your filter system output
+axes[0, 1].plot(h.J - h.K, h.K)
 axes[0, 1].invert_yaxis()
-axes[0, 1].set_xlabel(r'$B - V$')
-axes[0, 1].set_ylabel(r'$V$')
+axes[0, 1].set_xlabel(r'$J - K$')
+axes[0, 1].set_ylabel(r'$K$ (mag)')
 axes[0, 1].set_title('CMD')
 
 # Delta_nu vs age
 axes[1, 0].plot(h.star_age / 1e9, h.Delta_nu_int * 1e6)
 axes[1, 0].set_xlabel('Age (Gyr)')
 axes[1, 0].set_ylabel(r'$\Delta\nu$ ($\mu$Hz)')
+axes[1, 0].set_title('Large frequency separation')
 
 # delta_nu02 vs age
 axes[1, 1].plot(h.star_age / 1e9, h.delta_nu02_int * 1e6)
 axes[1, 1].set_xlabel('Age (Gyr)')
 axes[1, 1].set_ylabel(r'$\delta\nu_{02}$ ($\mu$Hz)')
+axes[1, 1].set_title('Small frequency separation')
 
 plt.tight_layout()
+plt.savefig('lab3_history.png', dpi=150)
 plt.show()
 ```
 
-> [!NOTE]
-> The colour column names (`Johnson_B`, `Johnson_V`, etc.) are set by the filter files listed in your colors instrument index. Check your `history_columns.list` to confirm the exact names output by your run.
+> [!TIP]
+> The column names `h.J` and `h.K` are placeholders. The exact names depend on what your 2MASS filter files are called. Check `LOGS/history.data` header line to confirm.
 
 ---
 
-## Exercise 3: Crowd-source the seismic grid
+## Step 6 — Crowd-source the seismic grid
 
-Enter your values at the age closest to 1 Gyr into the shared spreadsheet:
+Find the timestep in your history closest to 1 Gyr and enter the following into the shared spreadsheet:
 
-| Column | Value |
-|--------|-------|
-| `initial_mass` | your assigned mass ($M_\odot$) |
-| $\Delta\nu$ at 1 Gyr | `Delta_nu_int` in $\mu$Hz |
-| $\delta\nu_{02}$ at 1 Gyr | `delta_nu02_int` in $\mu$Hz |
-| $B-V$ at 1 Gyr | from your colors columns |
+| Column | Where to find it |
+|--------|-----------------|
+| `initial_mass` ($M_\odot$) | your assigned value |
+| Spectral type | from `Teff` at 1 Gyr |
+| 2MASS color ($J-K$) | from your history file |
+| $\Delta\nu$ ($\mu$Hz) | `Delta_nu_int` × 10⁶ |
+| $\delta\nu_{02}$ ($\mu$Hz) | `delta_nu02_int` × 10⁶ |
 
-Once everyone has contributed, look at the full grid. How well do $\Delta\nu$ and $\delta\nu_{02}$ separate stars of different masses at the same age? How does that compare to the CMD separation from Lab 2?
+```python
+import mesa_reader as mr
+import numpy as np
 
-{{< details title="Discussion prompt" closed="true" >}}
+h = mr.MesaData('LOGS/history.data')
 
-$\Delta\nu$ scales with mean density, so it is sensitive to both mass and radius. $\delta\nu_{02}$ is sensitive to the core sound speed gradient, which depends on the central hydrogen abundance — almost independent of the envelope. How does adding $\delta\nu_{02}$ to an isochrone fit change the mass–age degeneracy? Which observable from Lab 2 does it complement most effectively?
+# Find index closest to 1 Gyr
+idx = np.argmin(np.abs(h.star_age - 1e9))
+
+print(f"Age:          {h.star_age[idx]/1e9:.3f} Gyr")
+print(f"Teff:         {h.Teff[idx]:.0f} K")
+print(f"J - K:        {h.J[idx] - h.K[idx]:.4f}")   # update column names
+print(f"Delta_nu:     {h.Delta_nu_int[idx]*1e6:.2f} uHz")
+print(f"delta_nu02:   {h.delta_nu02_int[idx]*1e6:.2f} uHz")
+```
+
+Once the full group has contributed, look at the complete grid. How well do $\Delta\nu$ and $\delta\nu_{02}$ separate stars of different masses at the same age? How does this compare to the CMD separation you saw in Lab 2?
+
+> [!NOTE]
+> **Amplitude column — decision pending.** At the next team meeting we will decide whether oscillation amplitude (estimated from scaling relations and 2MASS bolometric corrections) is computed here and added to the spreadsheet, or computed later in Step 7 directly from the exported grid data.
+
+---
+
+## Step 7 — Telescope detection map
+
+Using the exported crowd-source grid, plot oscillation amplitude as a function of mass and spectral type, and overplot the photometric noise floors for **Kepler**, **TESS**, and **PLATO**.
+
+> [!NOTE]
+> The amplitude calculation and telescope noise floor values will be added here once the decision from Step 6 is confirmed. The key result students should find: stars below roughly 0.6–0.7 $M_\odot$ fall below the detection threshold of current space missions, which introduces a systematic observational bias in the asteroseismic sample.
+
+{{< details title="Discussion questions" closed="true" >}}
+
+- Which stars in your grid are detectable by Kepler? By TESS? By PLATO?
+- What does this tell you about the bias in real asteroseismic catalogues?
+- For stars where asteroseismology is detectable, how does the age precision from $\Delta\nu + \delta\nu_{02}$ compare to what you could infer from the CMD in Lab 2?
+- What could PLATO measure that Kepler and TESS could not?
 
 {{< /details >}}
