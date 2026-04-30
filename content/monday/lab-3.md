@@ -275,8 +275,7 @@ axes[0, 0].set_ylabel(r'$\log\,L/L_\odot$')
 axes[0, 0].set_title('HR diagram')
 
 # Colour-magnitude diagram
-# Update column names to match your filter system output
-axes[0, 1].plot(h.J - h.K, h.K)
+axes[0, 1].plot(h.J - h.Ks, h.Ks)
 axes[0, 1].invert_yaxis()
 axes[0, 1].set_xlabel(r'$J - K$')
 axes[0, 1].set_ylabel(r'$K$ (mag)')
@@ -327,7 +326,7 @@ idx = np.argmin(np.abs(h.star_age - 1e9))
 
 print(f"Age:          {h.star_age[idx]/1e9:.3f} Gyr")
 print(f"Teff:         {h.Teff[idx]:.0f} K")
-print(f"J - K:        {h.J[idx] - h.K[idx]:.4f}")   # update column names
+print(f"J - K:        {h.J[idx] - h.Ks[idx]:.4f}")
 print(f"Delta_nu:     {h.Delta_nu_int[idx]*1e6:.2f} uHz")
 print(f"delta_nu02:   {h.delta_nu02_int[idx]*1e6:.2f} uHz")
 ```
