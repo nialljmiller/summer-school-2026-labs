@@ -1,7 +1,7 @@
 
 &star_job
 
-      pause_before_terminate = .true.
+      pause_before_terminate = .false.
       show_log_description_at_start = .true.
 
       ! pgstar
@@ -181,11 +181,11 @@
   Grid1_plot_rowspan(5) = 3
   Grid1_plot_col(5) = 6
   Grid1_plot_colspan(5) = 4
-  Grid1_plot_pad_left(5) = 0.02
+  Grid1_plot_pad_left(5) = 0.051
   Grid1_plot_pad_right(5) = 0.02
   Grid1_plot_pad_top(5) = 0.02
   Grid1_plot_pad_bot(5) = 0.02
-  Grid1_txt_scale_factor(5) = 0.25
+  Grid1_txt_scale_factor(5) = 0.2
 
   Text_Summary1_name(1,1) = 'model_number'
   Text_Summary1_name(2,1) = 'star_age'
@@ -196,14 +196,8 @@
   Text_Summary1_name(7,1) = 'radius'
   Text_Summary1_name(8,1) = 'log_g'
 
-  Text_Summary1_name(1,2) = 'center_h1'
-  Text_Summary1_name(2,2) = 'center_he4'
-  Text_Summary1_name(3,2) = 'log_cntr_T'
-  Text_Summary1_name(4,2) = 'log_cntr_Rho'
-  Text_Summary1_name(5,2) = 'Delta_nu_int'
-  Text_Summary1_name(6,2) = 'delta_nu02_int'
-  Text_Summary1_name(7,2) = ''
-  Text_Summary1_name(8,2) = ''
+  Text_Summary1_name(1,2) = 'Delta_nu_int'
+  Text_Summary1_name(2,2) = 'delta_nu02_int'
 
 / ! end of pgstar namelist
 
@@ -211,8 +205,8 @@
 &colors
 
    use_colors = .true.
-   instrument = '../data/filters/2MASS/'
-   stellar_atm = '../data/stellar_models/Kurucz2003all__alpha_00/'
+   instrument = '../data/filters/2MASS/2MASS'
+   stellar_atm = '../data/stellar_models/Kurucz2003all__alpha_00'
    vega_sed = 'data/colors_data/stellar_models/vega_flam.csv'
    distance = 3.0857d19     ! 10 parsecs in cm -> Absolute Magnitudes
    make_csv = .false.
