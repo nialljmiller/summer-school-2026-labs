@@ -30,8 +30,9 @@
 
        implicit none
 
-       !real(dp) :: t_spindown
+       real(dp) :: t_spindown
        real(dp), save :: ages(5), Teffs(5), Prots(5), total_AMs(5)
+       real(dp) :: target_age(6)
        real(dp) :: dJdt_hist
        integer :: target_age_ID
 
@@ -90,6 +91,12 @@
             Prots     = 0._dp
             total_AMs = 0._dp
 
+            target_age(1) = 1d9 !0.3d9
+            target_age(2) = 3d9 !0.5d9
+            target_age(3) = 5d9 !1.3d9
+            target_age(4) = 7d9 !2.0d9
+            target_age(5) = 9d9 !3.5d9
+            target_age(6) = 1d99
 
          end subroutine extras_startup
 
@@ -114,7 +121,7 @@
             type (star_info), pointer :: s
             logical :: do_retry
 
-            real(dp) :: target_age(6), precision
+            real(dp) :: precision
 
             ierr = 0
             call star_ptr(id, s, ierr)
@@ -139,12 +146,6 @@
             ! termination_code_str(t_xtra1) = 'my termination condition'
 
             precision = 0.01
-            target_age(1) = 0.3d9
-            target_age(2) = 0.5d9
-            target_age(3) = 1.3d9
-            target_age(4) = 2.0d9
-            target_age(5) = 3.5d9
-            target_age(6) = 1d99
 
 
 
@@ -304,10 +305,10 @@
             ! see extras_check_model for information about custom termination codes
             ! by default, indicate where (in the code) MESA terminated
 
-            !if ((t_spindown / s% dt) .lt. 10) then
-            !    s% dt_next = s% dt * 0.5d0
-            !    write(*,*) "Warning: Torque too large. Decreasing timestep to ",s% dt_next
-            !end if
+            if ((t_spindown / s% dt) .lt. 10) then
+                s% dt_next = s% dt * 0.5d0
+                write(*,*) "Warning: Torque too large. Decreasing timestep to ",s% dt_next
+            end if
 
             if (extras_finish_step == terminate) s% termination_code = t_extras_finish_step
 
@@ -328,7 +329,7 @@
 
             write(*,*) '***********************************'
             do k =1,5
-              write(*,*) 'age [Gyr]', ages(k), 'Teff [K]', Teffs(k), 'P_rot [d]', Prots(k), 'log(J_tot)', total_AMs(k)
+              write(*,'(A,F10.5,A,I5,A,F10.3,A,F10.3)') '  age [Gyr]:  ', ages(k), '  Teff [K]:  ', nint(Teffs(k)), '  P_rot [d]:  ', round(Prots(k),3), '  log(J_tot):  ', round(total_AMs(k),3)
             end do
             write(*,*) '***********************************'
 
@@ -500,6 +501,7 @@
             write(*, *) "The total jdot is ", jdot_total, " cgs units. Fractional AM loss w.r.t total AM is", (jdot_total*s% dt)/s% total_angular_momentum
 
             dJdt_hist = jdot_total
+            t_spindown = abs(s% total_angular_momentum / jdot_total)
             !--------------------------------------------
             ! Moment-of-inertia-like weights
             ! w(k) ~ dm * r^2
@@ -527,9 +529,23 @@
 
          end subroutine torque_magnetic_braking
 
-         subroutine step_at_age(id, target_age, precision, do_retry, ierr)
+        function round(x, ndec) result(y)
+            implicit none
+
+            real(dp), intent(in)  :: x
+            integer, intent(in)  :: ndec
+
+            real(dp) :: factor, y
+
+            factor = 10.0d0**ndec
+
+            y = dnint(x * factor) / factor
+
+         end function round
+
+         subroutine step_at_age(id, target_age_i, precision, do_retry, ierr)
              integer, intent(in) :: id
-             real(dp), intent(inout) :: target_age
+             real(dp), intent(inout) :: target_age_i
              real(dp), intent(in) :: precision
              logical, intent(out) :: do_retry
              integer, intent(out) :: ierr
@@ -544,15 +560,16 @@
 
              do_retry  = .false.
              ok_time_step = .false.
-             if (ABS(s% star_age - target_age)/target_age < precision) then
+             if (ABS(s% star_age - target_age_i)/target_age_i < precision) then
                  ok_time_step = .true.
              endif
 
              ! retry if target Xc was missed
-             if (s% star_age > target_age .and. .not. ok_time_step) then
-                 s%dt = 0.5*s%dt
+             if (s% star_age > target_age_i .and. .not. ok_time_step) then
+                write(*,*) 'Reducing time step for specific age. old', s%dt, s% star_age
+                 s%dt = target_age_i*secyer - (s% star_age*secyer-s%dt) !0.5*s%dt
                  do_retry = .true.
-                 write(*,*) 'Reducing time step for specific age.'
+                 write(*,*) 'Reducing time step for specific age. new', s%dt
                  return
              endif
 
@@ -561,31 +578,31 @@
                  target_age_ID = target_age_ID + 1
              endif
 
-             if ((target_age == 3.5d9) .and. (ages(5) == 0._dp) .and. ok_time_step) then
+             if ((target_age_i == target_age(5)) .and. (ages(5) == 0._dp) .and. ok_time_step) then
                ages(5)      = s% star_age/1d9
                Teffs(5)     = s% Teff
                Prots(5)     = 1._dp/(s% omega_avg_surf*86400/(2._dp*pi))
                total_AMs(5) = safe_log10(s% total_angular_momentum)
 
-             else if ((target_age == 2.0d9) .and. (ages(4) == 0._dp) .and. ok_time_step) then
+             else if ((target_age_i == target_age(4)) .and. (ages(4) == 0._dp) .and. ok_time_step) then
                ages(4)      = s% star_age/1d9
                Teffs(4)     = s% Teff
                Prots(4)     = 1._dp/(s% omega_avg_surf*86400/(2._dp*pi))
                total_AMs(4) = safe_log10(s% total_angular_momentum)
 
-             else if ((target_age == 1.3d9) .and. (ages(3) == 0._dp) .and. ok_time_step) then
+             else if ((target_age_i == target_age(3)) .and. (ages(3) == 0._dp) .and. ok_time_step) then
                ages(3)      = s% star_age/1d9
                Teffs(3)     = s% Teff
                Prots(3)     = 1._dp/(s% omega_avg_surf*86400/(2._dp*pi))
                total_AMs(3) = safe_log10(s% total_angular_momentum)
 
-             else if ((target_age == 0.5d9) .and. (ages(2) == 0._dp) .and. ok_time_step) then
+             else if ((target_age_i == target_age(2)) .and. (ages(2) == 0._dp) .and. ok_time_step) then
                ages(2)      = s% star_age/1d9
                Teffs(2)     = s% Teff
                Prots(2)     = 1._dp/(s% omega_avg_surf*86400/(2._dp*pi))
                total_AMs(2) = safe_log10(s% total_angular_momentum)
 
-             else if ((target_age == 0.3d9) .and. (ages(1) == 0._dp) .and. ok_time_step) then
+             else if ((target_age_i == target_age(1)) .and. (ages(1) == 0._dp) .and. ok_time_step) then
                ages(1)      = s% star_age/1d9
                Teffs(1)     = s% Teff
                Prots(1)     = 1._dp/(s% omega_avg_surf*86400/(2._dp*pi))
