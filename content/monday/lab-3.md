@@ -193,6 +193,15 @@ print(f"Delta_nu:     {h.Delta_nu_int[idx]*1e6:.2f} uHz")
 print(f"delta_nu02:   {h.delta_nu02_int[idx]*1e6:.2f} uHz")
 ```
 
+...and to check the mass from the inlist
+
+```python 
+with open('inlist') as f:
+    for line in f:
+        if 'initial_mass' in line:
+            print(line.strip())
+```
+
 Once the full group has contributed, look at the complete grid. How well do $\Delta\nu$ and $\delta\nu_{02}$ separate stars of different masses at the same age? How does this compare to the CMD separation from Lab 2?
 
 ---
