@@ -186,7 +186,7 @@ h = mr.MesaData('LOGS/history.data')
 idx = np.argmin(np.abs(h.star_age - 1e9))
 
 print(f"Age:          {h.star_age[idx]/1e9:.3f} Gyr")
-print(f"L/Lsun:       {h.luminosity[idx]:.4f}")
+print(f"L/Lsun:       {10**h.log_L[idx]:.4f}")
 print(f"Teff:         {h.Teff[idx]:.0f} K")
 print(f"J - Ks:       {h.J[idx] - h.Ks[idx]:.4f}")
 print(f"Delta_nu:     {h.Delta_nu_int[idx]*1e6:.2f} uHz")
