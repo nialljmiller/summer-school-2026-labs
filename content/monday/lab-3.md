@@ -183,14 +183,17 @@ import numpy as np
 
 h = mr.MesaData('LOGS/history.data')
 
-idx = np.argmin(np.abs(h.star_age - 1e9))
+target_ages = [1e9, 3e9, 5e9, 7e9, 9e9]
 
-print(f"Age:          {h.star_age[idx]/1e9:.3f} Gyr")
-print(f"L/Lsun:       {10**h.log_L[idx]:.4f}")
-print(f"Teff:         {h.Teff[idx]:.0f} K")
-print(f"J - Ks:       {h.J[idx] - h.Ks[idx]:.4f}")
-print(f"Delta_nu:     {h.Delta_nu_int[idx]*1e6:.2f} uHz")
-print(f"delta_nu02:   {h.delta_nu02_int[idx]*1e6:.2f} uHz")
+for age in target_ages:
+    idx = np.argmin(np.abs(h.star_age - age))
+    if h.star_age[idx] < age * 1.2:
+        print(f"Age: {h.star_age[idx]/1e9:.1f} Gyr  "
+              f"Teff: {h.Teff[idx]:.0f} K  "
+              f"L/Lsun: {10**h.log_L[idx]:.4f}  "
+              f"J-Ks: {h.J[idx] - h.Ks[idx]:.4f}  "
+              f"Delta_nu: {h.Delta_nu_int[idx]*1e6:.2f} uHz  "
+              f"delta_nu02: {h.delta_nu02_int[idx]*1e6:.2f} uHz")
 ```
 
 ...and to check the mass from the inlist
