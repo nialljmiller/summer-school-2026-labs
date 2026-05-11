@@ -36,9 +36,6 @@ In Lab 1, we explored magnetic braking. Let's turn it off for this lab in the `&
 use_other_torque    = .false.
 ```
 
-> [!CAUTION]
-> ELIZA - UPDATE WITH WHATEVER OUTPUTS ARE FROM LAB 1 THAT THEY NEED TO REMOVE
-
 ### Step 2 - Building the inlist
 
 For this lab, we are going to start with the same inlist as before, but we'll be adding a few things. Start by opening up `inlist_project` in a text editor.
