@@ -4,6 +4,7 @@
       use star_def
       use const_def
       use math_lib
+      use colors_lib
 
       implicit none
 
@@ -615,37 +616,33 @@
 
       end subroutine data_for_extra_profile_header_items
 
-
-      ! returns either keep_going or terminate.
-      ! note: cannot request retry; extras_check_model can do that.
       integer function extras_finish_step(id)
          integer, intent(in) :: id
-         integer :: ierr
+         integer :: ierr, k, n_cols
+         real(dp) :: m_div_h
+         real(dp), allocatable :: color_vals(:)
+         character(len=80), allocatable :: color_names(:)
          type (star_info), pointer :: s
-
-         character(len=50), dimension(2) :: strings_to_replace(2), replace_with_strings(2)
-         character(len=50) :: freq_min, freq_max
-         real(dp) :: width !, obs_Teff_min, obs_Teff_max, obs_L_min, obs_L_max
-         
 
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
          extras_finish_step = keep_going
 
+         ! print synthetic colors for this timestep
+         n_cols = how_many_colors_history_columns(s% colors_handle)
+         allocate(color_names(n_cols), color_vals(n_cols))
+         m_div_h = log10((s% Z(s% photosphere_cell_k) / s% X(s% photosphere_cell_k)) / 2.30057173972d-2)
+         call data_for_colors_history_columns(s% T(1), log10(s% grav(1)), s% R(1), m_div_h, &
+            s% model_number, s% colors_handle, n_cols, color_names, color_vals, ierr)
+         do k = 1, n_cols
+            write(*, '(a40, 1pe23.13)') trim(color_names(k)), color_vals(k)
+         end do
+         deallocate(color_names, color_vals)
 
-         ! ! save a profile, near ZAMS
-         ! if (s%center_h1 < 0.70) and (.not. zams_model_saved) then
-         !    zams_model_saved = .true.
-         !    s% need_to_save_profiles_now = .true.
-         ! endif
-
-         ! see extras_check_model for information about custom termination codes
-         ! by default, indicate where (in the code) MESA terminated
          if (extras_finish_step == terminate) s% termination_code = t_extras_finish_step
       end function extras_finish_step
-      
-      
+
       subroutine extras_after_evolve(id, ierr)
          integer, intent(in) :: id
          integer, intent(out) :: ierr

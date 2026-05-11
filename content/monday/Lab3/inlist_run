@@ -43,7 +43,7 @@
    uniform_am_nu_non_rot = 1d20 ! cm^2/s
 
    ! --- Set your assigned mass here ---
-   initial_mass = 0.5d0 ! in Msun units
+   initial_mass = 0.4 ! in Msun units
 
    initial_z = 0.0134
    initial_y = 0.2485
@@ -120,10 +120,10 @@
   History_Track1_yname = 'Delta_nu_int'
   History_Track1_xaxis_label = 'Age (yr)'
   History_Track1_yaxis_label = 'Delta-nu (Hz)'
-  History_Track1_xmin = 0
-  History_Track1_xmax = 1.3e10
-  History_Track1_ymin = -1
-  History_Track1_ymax = -1
+  History_Track1_ymin = 0
+  History_Track1_ymax = 5e-4
+
+
 
   ! Panel 3 — delta_nu02 vs age (top right)
   Grid1_plot_name(3) = 'History_Track2'
@@ -141,15 +141,14 @@
   History_Track2_yname = 'delta_nu02_int'
   History_Track2_xaxis_label = 'Age (yr)'
   History_Track2_yaxis_label = 'delta-nu02 (Hz)'
-  History_Track2_xmin = 0
-  History_Track2_xmax = 1.3e10
-  History_Track2_ymin = -1
-  History_Track2_ymax = -1
+  History_Track2_ymin = 0
+  History_Track2_ymax = 5e-5
+
 
   ! Panel 4 — Interior composition (bottom left)
   Grid1_plot_name(4) = 'Abundance'
   Grid1_plot_row(4) = 5
-  Grid1_plot_rowspan(4) = 3
+  Grid1_plot_rowspan(4) = 4
   Grid1_plot_col(4) = 1
   Grid1_plot_colspan(4) = 5
   Grid1_plot_pad_left(4) = 0.06
@@ -166,29 +165,21 @@
   Abundance_xaxis_name = 'mass'
   Abundance_log_mass_frac_min = -4.0
 
-  ! Panel 5 — Text summary (bottom right)
-  Grid1_plot_name(5) = 'Text_Summary1'
+  Grid1_plot_name(5) = 'History_Track3'
   Grid1_plot_row(5) = 5
-  Grid1_plot_rowspan(5) = 3
+  Grid1_plot_rowspan(5) = 4
   Grid1_plot_col(5) = 6
   Grid1_plot_colspan(5) = 4
-  Grid1_plot_pad_left(5) = 0.051
-  Grid1_plot_pad_right(5) = 0.02
-  Grid1_plot_pad_top(5) = 0.02
-  Grid1_plot_pad_bot(5) = 0.02
-  Grid1_txt_scale_factor(5) = 0.2
-
-  Text_Summary1_name(1,1) = 'model_number'
-  Text_Summary1_name(2,1) = 'star_age'
-  Text_Summary1_name(3,1) = 'log_dt'
-  Text_Summary1_name(4,1) = 'star_mass'
-  Text_Summary1_name(5,1) = 'Teff'
-  Text_Summary1_name(6,1) = 'luminosity'
-  Text_Summary1_name(7,1) = 'radius'
-  Text_Summary1_name(8,1) = 'log_g'
-
-  Text_Summary1_name(1,2) = 'Delta_nu_int'
-  Text_Summary1_name(2,2) = 'delta_nu02_int'
+  Grid1_plot_pad_left(5) = 0.06
+  Grid1_plot_pad_right(5) = 0.04
+  Grid1_plot_pad_top(5) = 0.05
+  Grid1_plot_pad_bot(5) = 0.06
+  Grid1_txt_scale_factor(5) = 0.65
+  History_Track3_title = 'Color-Color'
+  History_Track3_xname = 'J'
+  History_Track3_yname = 'H'
+  History_Track3_xaxis_label = 'M_J'
+  History_Track3_yaxis_label = 'M_H'
 
 / ! end of pgstar namelist
 
