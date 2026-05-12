@@ -1,25 +1,28 @@
 +++
 date = '2026-04-06T13:38:04+02:00'
 draft = false
-title = 'MESA Summer School 2026 - Monday Lab 1 draft'
+title = 'Monday Lab 1: Gyrochronology'
 +++
 
-# Monday Lab 1: Gyrochronology
 
 *Author: Joey Mombarg (lead TA), Niall Miller, Eliza Frankel - Lecturer: Yaguang Li — MESA Summer School 2026, Tetons, Wyoming*
 
-
+*Special thanks to the Monday Lab of the MESA Summer School 2025 at KU Leuven for the template.*
 
 In this lab, you will learn how to set up a MESA model from scratch,
-monitor the run, customize its output and choose
-reasonable values for model parameters.
+monitor the run, and customize its output.
 
-Stars with a (significant) convective envelope experience a braking in their rotation velocity at the surface by magnetically driven stellar winds. The wind carries away angular momentum from the surface of the star,
-thereby applying a torque on the convective envelope. The effect of magnetic braking is clear in the distributions of surface rotation velocities, where there is a clear decrease in the surface rotation velocity below the so-call Kraft break, around 6500K. The decrease in the surface rotation velocity of stars below the Kraft break happens in a quite predictible way over time such that we can estimate the age of a cluster. In this Lab, we will run a model of a star that is undergoing magnetic braking and measure the age of a stellar cluster from gyrochronology.
+### **Introduction**
 
+Stars with a (significant) convective envelope experience a braking of their rotation velocity at the surface by magnetically-driven stellar winds. The wind carries away angular momentum from the surface of the star,
+thereby applying a torque on the convective envelope. The effect of magnetic braking is clear in the observed distributions of surface rotation velocities, where there is a clear decrease seen in the surface rotation velocity below the so-called Kraft break, around 6500K. The decrease in the surface rotation velocity of stars below the Kraft break happens in a quite predictible way over time such that we can estimate the age of a cluster. In this Lab, we will run a model of a star that is undergoing magnetic braking and measure the age of a stellar cluster from gyrochronology.
+
+In the figure below from [Curtis et al. (2020)](https://ui.adsabs.harvard.edu/abs/2020ApJ...904..140C/abstract) (their Fig. 7), you can see observed distributions of rotation periods as a function of effective temperature (from Gaia DR2 colors) of stars in clusters and field stars of different ages. In this lab, we will make such a $T_{\rm eff}-P_{\rm rot}$ figure with MESA, using crowd sourcing.
+
+![gyro](gyrochronology_clusters_curtis.png)
 ---
 
-### **Session 1**
+### **Outline**
 
 **A. Setting up your MESA work directory**
 - *\~10 minutes*
@@ -46,12 +49,13 @@ build up our inlist. Start by copying over the default MESA work directory to so
 ```
 
 Try to compile with ``./mk``.
-If everything compiled correctly, you should see a number of executables, namely _clean_, _mk_, _re_ and
-_rn_ when you type ``ls``.
+If everything compiled correctly, you should see a number of executables, namely `clean`, `mk`, `re` and
+`rn` when you type ``ls``.
 The subdirectory _src_ contains the ``run_star_extras.f90`` file, which allows you to add additional physics and generate custom output. We will use this to add our own custom routine to apply magnetic braking via the option
-in the ``run_star_extras.f90`` to provide an additional torque. For now, just simply replace the default ``run_star_extras.f90`` file with the one of Lab 1. You will learn about ``run_star_extras.f90`` in the labs later in the week.
+in the ``run_star_extras.f90`` to provide an additional torque. For now, just simply replace the default ``run_star_extras.f90`` file with the one of Lab 1 found [here](https://drive.google.com/drive/folders/1Mpy0fKF4LbWB4q5UqUrYw_0PBFqZ-DY1). You will learn about ``run_star_extras.f90`` in the labs later in the week.
 
-Everytime you change something to the ``run_star_extras.f90``, you have to recompile to apply the changes. Go back up one level to the work directory and type ``./clean; ./mk``.
+
+Everytime you change something to the ``run_star_extras.f90``, you have to recompile to apply the changes. Go back up one level to the work directory and type ``./clean; ./mk`` to check if it compiles correctly.
 
 The inlists contain all the input parameters for the MESA run. You will see *inlist*,
 *inlist_pgstar* and *inlist_project*.
@@ -63,7 +67,71 @@ MESA assumes some default value that might not be optimal for your specific scie
 
 ### B:  Setting up your MESA project inlist
 
-2. We will now set the parameters/controls in the *inlist_project*. **Open *inlist_project* with a text editor.**
+2. We will now set the parameters/controls in the *inlist_project*. **Open *inlist_project* with a text editor and replace the content with the inlist skeleton below.** (There is a buttom to copy the entire block in the top right corner.)
+
+{{< details title="Inlist skeleton" closed="true" >}}
+
+```fortran
+&star_job
+
+      pause_before_terminate = .true.
+      show_log_description_at_start = .true.
+
+      ! pgstar
+
+      ! pre main sequence
+
+      ! initial rotation
+
+      ! initial metal fractions
+
+
+
+/ ! end of star_job namelist
+
+&eos
+
+/ ! end of eos namelist
+
+&kap
+
+
+/ ! end of kap namelist
+
+&controls
+
+      ! ZAMS limit
+
+      ! uniform viscosity
+
+      ! initial mass
+
+      ! initial He and Z
+
+      ! stopping criterion
+
+      ! output
+
+      ! atmosphere options
+
+      ! Enable magnetic braking.
+      use_other_torque    = .false.
+
+/ ! end of controls namelist
+
+
+&pgstar
+
+! We set the pgstar controls in a seperate inlist instead.
+
+/ ! end of pgstar namelist
+
+&colors
+
+/ ! end of colors namelist
+```
+{{< /details >}}
+
    You will see different sections, indicated by for example
 
    ```bash
@@ -71,7 +139,8 @@ MESA assumes some default value that might not be optimal for your specific scie
    / ! end of star_job namelist
    ```
 
-Let's start with ``&controls``. Pick a mass from the spreadsheet and set the initial mass equal to that value.
+Let's start with ``&controls``. Pick a mass from the [spreadsheet](https://docs.google.com/spreadsheets/d/1C88C5V2siCAaK8-3qgAZoNc9-9IH-RTIqFVetXQc3EM/edit?gid=0#gid=0) and set the initial mass equal to that value.
+If you have a less powerful machine, consider picking a higher mass.
 
 
 
@@ -80,21 +149,29 @@ initial_mass = 1d0
 ```
 
 
-We want to run a model starting from the pre-main sequence up to the point when the hydrogen-mass fraction in the core is less than 0.01.
-First set
+We want to run a model starting from the pre-main sequence up to the point when the hydrogen-mass fraction in the core ($X_{\rm c}$) is less than 0.01.
+First, in ``&star_job`` set
 
 ```fortran
 create_pre_main_sequence_model = .true.
 pre_ms_T_c = 9.9d5 ! Initial central temperature.
 ```
 
-in ``&star_job`` and set
+and in ``&controls`` set
 
 ```fortran
 xa_central_lower_limit_species(1) = 'h1'
 xa_central_lower_limit(1) = 0.01
 ```
-in ``&controls``.
+
+{{< details title="More info" closed="true" >}}
+
+In principle, you can specify multiple lower limits, for example ``xa_central_lower_limit_species(2) = 'c12'``, and so on.
+MESA will stop the run based on whichever criterion is met first.
+
+{{< /details >}}
+
+
 The initial composition of the star can be set by adding the following in ``&controls``
 
 ```fortran
@@ -106,10 +183,19 @@ The initial mixture (relative mass fractions of the metals) of the star can be s
 ```fortran
    initial_zfracs = 6 ! AGSS09_zfracs
 ```
-These three controls gives us a star with a solar metallicity and metal fractions according to those measured for the Sun by Asplund et al. (2009).
+These three controls gives us a star with a solar metallicity and metal fractions according to those measured for the Sun by [Asplund et al. (2009)](https://ui.adsabs.harvard.edu/abs/2009ARA%26A..47..481A/abstract).
+
+{{< details title="More info" closed="true" >}}
+You can find the metal fractions in
+```bash
+$MESA_DIR/chem/public/chem_def.f90
+```
+
+{{< /details >}}
+
 
 Next, we will enable rotation. One option to do this, is by relaxing a non-rotating model to a specific uniform rotation frequency at the zero-age main sequence (ZAMS). We relax the ZAMS model
-in 15 steps to reach a velocity of 3.1416d-5 rad/s, roughly 10 times the current surface rotation frequency of the Sun. Add in ``&star_job``:
+in 15 steps to reach a velocity of $3.1416\cdot 10^{-5}$ rad/s, roughly 10 times the current surface rotation frequency of the Sun. Add in ``&star_job``:
 
 ```fortran
   new_omega =  3.1416d-5 ! 5000nHz
@@ -153,7 +239,7 @@ uniform_am_nu_non_rot = 1d20 ! in cm^2/s
 
 {{< /details >}}
 
-In MESA, we have to make a choice which opacity tables to use. MESA comes with several precomputed opacity tables for different sets of (X,Z), which are based on monochromatic opacities for a specific mixtures.
+In MESA, we have to make a choice which opacity tables to use. MESA comes with several precomputed opacity tables for different sets of (X,Z), which are computed from monochromatic opacities, assuming a specific mixture.
 Since we want to be consistent with the Asplund et al. (2009) Solar mixture that we took, we use the appropriate opacity tables. Set the following controls in the ``&kap`` section.
 
 ```fortran
@@ -165,6 +251,7 @@ kap_CO_prefix   = 'a09_co'
 use_Type2_opacities = .false.
 ```
 Type 2 opacities account for carbon and oxygen enhancement during and after He burning. We are not using those in this lab.
+
 We also need to set the atmospheric boundary conditions. We are using a simple $T(\tau)$ relation for an Eddington grey atmosphere with a varying opacity in the atmosphere that is consistent with the local temperature
 and pressure. Add the following controls to ``&controls``.
 
@@ -199,7 +286,7 @@ Note that if you only change your inlists between runs, you do not need to recom
 ### C: Running the models
 
 3. Next, we will generate some custom plots during the run. We want to check that if there is no magnetic braking (no external torque), the total angular momemtum of the star should be conserved.
-**Open *inlist_pgstar* with a text editor and add the following at the indicated place.**
+**Replace *inlist_pgstar* with the one found [here](https://drive.google.com/drive/folders/1Mpy0fKF4LbWB4q5UqUrYw_0PBFqZ-DY1). Open *inlist_pgstar* with a text editor and add the following at the indicated place.**
 
 ```fortran
 Grid1_plot_name(7) = 'History_Track2'
@@ -222,7 +309,7 @@ Save and return to your work directory.
 
 
 4. We will now run our model (first without magnetic braking). In the work directory, run ``./rn``.
-    You will see that MESA complains about about the quantities that we want to plot in our custom window (bad yaxis for History panels plot ...). This is because these quantities are not saved in the history file by default.
+    You will see that after the relaxation phase MESA complains about about the quantities that we want to plot in our custom window (`ERROR: failed to find * in history data`). This is because these quantities are not saved in the history file by default.
     You can stop the run prematurely with ctrl+C.
     The files that dictate what output should be saved can be found in
 
@@ -231,9 +318,8 @@ Save and return to your work directory.
     $MESA_DIR/star/defaults/profile_columns.list
     ```
 
-    Copy the ``history_columns.list`` to your work directory and open it.
-    Look for ``log_star_age`` and ``log_total_angular_momentum`` and make sure they are uncommented (no ! in front). Save and close the file, no need to recompile.
-    We have already prepared the ``profile_columns.list`` for you. Copy this file to your work directory as well. If you are fast, however, try adding the needed quantities to ``profile_columns.list`` yourself.
+    Copy the ``history_columns.list`` to your work directory and open it. Look for the quantities in the error messages and make sure they are uncommented (no ! in front).
+    Also uncommented ``log_star_age`` and ``log_total_angular_momentum``. Save and close the file, no need to recompile.
     If you rename your custom ``history_columns.list`` and ``profile_columns.list``, you need to specify the names in ``&star_job``.
 
     ```fortran
@@ -243,7 +329,7 @@ Save and return to your work directory.
 
     Let's run the model again, ``./rn``. At some point, a window will show up.
 
-    At the top left panel, you see the local angular rotation frequency as a function of the radial coordinate (in $R_\odot$). Since we enfore uniform rotation, you should see a flat line. Next to this panel, you see the local chemical diffusion coefficient as a function of the mass coordinate. The blue regions are convective regions and have such high diffusion coefficients that the material is instantaneously mixed within the convective zones. The orange line is the radiative envelope mixing that is set in the inlist. Since we do not include any rotational mixing, the other colours in the legend should not show up.
+    At the top left panel, you see the local angular rotation frequency as a function of the radial coordinate (in $R_\odot$). Since we enfore uniform rotation, you should see a flat line. Next to this panel, you see the local chemical diffusion coefficient as a function of the mass coordinate. The blue regions are convective regions and have such high diffusion coefficients that the material is instantaneously mixed within the convective zones. The orange line is the radiative envelope mixing that is set in the inlist. Since we do not include any rotational mixing, the other colors in the legend should not show up.
 
     If the pgplot window does not fit your screen properly, you can change the following controls in ``inlist_pgstar``.
 
@@ -253,7 +339,7 @@ Save and return to your work directory.
     ```
 
 
-**Question**: Have a look at our custom window showing the total angular momentum over time. Is it indeed conserved (after relaxation)?
+**Question**: Have a look at our custom window showing the total angular momentum over time. Is it indeed conserved (after relaxation)? (You may stop the run if you are convinced.)
 
 
 
@@ -314,5 +400,104 @@ use_other_torque    = .true.
 This enables the custom magnetic braking routine in the ``run_star_extras.f90``. Change the name for the output log directory to save this run in a new folder. Check the evolution of the total angular momentum again. Do you now observe any angular momentum loss?
 Hit Enter once you have finished inspecting the plots.
 
-**Task**: Note down the effective temperature and rotation period at the 5 different points in age in the spreadsheet.
+**Task**: Note down the effective temperature and rotation period at the 5 different points in age in the [spreadsheet](https://docs.google.com/spreadsheets/d/1C88C5V2siCAaK8-3qgAZoNc9-9IH-RTIqFVetXQc3EM/edit?gid=0#gid=0). If you star does not reach the older ages, leave those blanc.
+
+
+
+
+**Bonus question**: How is the rotational evolution affected by the initial rotation velocity (``new_omega``)?
+
+> [!TIP]
+> You can find the complete inlist of this lab in the box below.
+
+
+{{< details title="Answer Lab 1" closed="true" >}}
+
+```fortran
+&star_job
+
+      pause_before_terminate = .true.
+      show_log_description_at_start = .true.
+
+      ! pgstar
+
+      pgstar_flag = .true.
+
+      ! pre main sequence
+
+      create_pre_main_sequence_model = .true.
+      pre_ms_T_c = 9.9d5 ! Initial central temperature.
+
+      ! initial rotation
+
+      new_omega =  3.1416d-5 ! 5000nHz
+      set_near_zams_omega_steps = 15
+
+      ! initial metal fractions
+
+      initial_zfracs = 6 ! AGSS09_zfracs
+
+/ ! end of star_job namelist
+
+&eos
+
+/ ! end of eos namelist
+
+&kap
+
+      ! opacities with AGSS09 abundances
+      kap_file_prefix = 'OP_a09_nans_removed_by_hand'
+      kap_lowT_prefix = 'lowT_fa05_a09p'
+      kap_CO_prefix   = 'a09_co'
+
+      use_Type2_opacities = .false.
+
+/ ! end of kap namelist
+
+&controls
+
+      ! ZAMS limit
+      Lnuc_div_L_zams_limit = 0.95
+
+      ! uniform viscosity
+      set_uniform_am_nu_non_rot = .true.
+      uniform_am_nu_non_rot = 1d20 ! in cm^2/s
+
+      ! initial mass
+      initial_mass = 1.2d0
+
+      ! initial He and Z
+      initial_z = 0.0134
+      initial_y = 0.2485
+
+      ! stopping criterion
+      xa_central_lower_limit_species(1) = 'h1'
+      xa_central_lower_limit(1) = 0.01
+
+      ! output
+      log_directory = '1p2Msun_Z0p0134_Omega5000nHz_magnetic_braking_test'
+      history_interval = 1
+
+      ! atmosphere options
+      atm_option = 'T_tau'
+      atm_T_tau_relation = 'Eddington'
+      atm_T_tau_opacity = 'varying'
+
+      ! Enable magnetic braking.
+      use_other_torque    = .true.
+
+/ ! end of controls namelist
+
+&pgstar
+
+! We set the pgstar controls in a seperate inlist instead.
+
+/ ! end of pgstar namelist
+
+&colors
+
+/ ! end of colors namelist
+```
+{{< /details >}}
+
 
