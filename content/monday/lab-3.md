@@ -25,6 +25,10 @@ end do
 Delta_nu_int = 1./(2.*Delta_nu_int)
 ```
 
+> [!TIP]
+> !!!!!DO NOT TOUCH 'run_star_extras.f90'!!!!!. All of the code that computes the seismic quantities is already implemented in `run_star_extras.f90`. You do not need to modify it. Your job is to configure the run, interpret the outputs, and combine results across the group.
+
+
 
 
 The loop accumulates $dr/c_s$ from the centre to the surface, building up the total sound travel time. The final line takes the reciprocal and divides by 2 to give $\Delta\nu$ in Hz. Because $\Delta\nu \propto \sqrt{M/R^3}$, it is a measure of the mean stellar density — it decreases as the star expands during main-sequence evolution.
@@ -280,7 +284,7 @@ Before pooling results, compare what each observable is actually telling you.
 
 ---
 
-## Step 5 — Python -- AKA how ALL of us actually make plots!
+## Step 5 — Plotting beyond pgstar with Python
 
 Once the run has enough history data, use `mesa_reader` to reproduce the four key plots. The `python_helpers/` directory contains more complete plotting scripts — the code below is a minimal example you can run directly.
 
