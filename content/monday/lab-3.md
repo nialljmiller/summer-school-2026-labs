@@ -52,15 +52,40 @@ The loop computes $dc_s/r$ shell by shell, approximating the radial derivative o
 
 ## Step 1 — Setup
 
-Lab 3 is a self-contained working directory. You do not need to copy anything from Lab 2. The `star` binary is already compiled, the five-panel pgstar display is already configured, and `run_star_extras.f90` already implements the seismic calculations.
+Lab 3 is a self-contained working directory. You do not need to copy anything from Lab 2. You can copy your inlist from Lab 2 into this lab for a faster setup.
+Something like:
+```bash
+cd conent/monday/Lab3
 
-The only thing you need to do before running is open `inlist_run` and set your assigned mass:
+ls          #to see whats here
+
+cat rn      #lets see what rn does (it copies 'inlist_run' to 'inlist' then calls rn1)
+
+cat rn1     #it calls star with 'inlist'
+            #so we have established that 'inlist_run' is what we modify. It will be copied to inlsit for execution.
+cp ../Lab2/whatever_inlist_was_called inlist_run
+```
+
+`run_star_extras.f90` already implements the seismic calculations.
+
+
+We are going to be crowd sourcing our science. 
+
+This link : https://docs.google.com/spreadsheets/d/1C88C5V2siCAaK8-3qgAZoNc9-9IH-RTIqFVetXQc3EM/edit?usp=sharing
+
+Will take you to a google sheets where you can add your name to the A column and choose as mass from 
+
+**0.4, 0.6, 0.8, 0.9, 1.0, 1.1, 1.2**
+
+You can do multiple masses but try not to do repeats of the same few. 
+
+Once you have chosen a mass, you need to open `inlist_run` and set your assigned mass:
 
 ```fortran
 initial_mass = X.X   ! set to your assigned value
 ```
 
-Mass assignments for this lab are: **0.4, 0.6, 0.8, 0.9, 1.0, 1.1, 1.2** $M_\odot$ — one per team.
+Mass assignments for this lab are: **0.4, 0.6, 0.8, 0.9, 1.0, 1.1, 1.2** $M_\odot$.
 
 > [!NOTE]
 > The `rn` script copies `inlist_run` to `inlist` before launching the model — always edit `inlist_run`, not `inlist` directly. `inlist` is overwritten every time you run.
@@ -69,7 +94,7 @@ Mass assignments for this lab are: **0.4, 0.6, 0.8, 0.9, 1.0, 1.1, 1.2** $M_\odo
 
 ## Step 2 — Configure the inlist
 
-Look through the below pg star display. It shows five panels that update in real time:
+Look through the below pg star display. It configures pg star to show five panels that update in real time:
 
 ```fortran
 
@@ -197,7 +222,31 @@ Look through the below pg star display. It shows five panels that update in real
 | 4 (bottom-left) | Interior composition (H, He, C, N vs mass coordinate) |
 | 5 (bottom-right) | Text summary including `Delta_nu_int` and `delta_nu02_int` |
 
-change the inlist to have this setup.
+change your inlist to have this setup.
+
+Now lets look at the colors module setup. 
+
+```fortran
+&colors
+
+   use_colors = .true.      #use colors
+
+   instrument = '../data/filters/2MASS/2MASS'                       !#We are assuming that data is in this dir
+   stellar_atm = '../data/stellar_models/Kurucz2003all__alpha_00'   !#check to see where it actually is. 
+
+   vega_sed = '../data/stellar_models/vega_flam.csv'                !#same as above
+   mag_system = 'Vega'                                              
+
+   distance = 3.0857d19                                             !#10 parsecs -> absolute magnitudes
+
+   make_csv = .true.                                                !#Make a csv for each filter
+   colors_results_directory = 'SED'                                 !#put them in the SED/ directory
+   sed_per_model = .false.                                          !#overwrite them at every step
+
+/ ! end of colors namelist
+```
+
+
 
 ---
 
@@ -207,14 +256,14 @@ change the inlist to have this setup.
 ./rn
 ```
 
-The model will run from the pre-main sequence to TAMS (central hydrogen fraction below 1%). Watch the five panels as the star evolves. Pay attention to:
+The model will run from the pre-main sequence to **T**erminal **A**ge **M**ain **S**equence (central hydrogen fraction below 1%). Watch the five panels as the star evolves. Pay attention to:
 
 - How quickly does $\Delta\nu$ change compared to the HR diagram position?
 - How does $\delta\nu_{02}$ behave — does it change monotonically?
 - What is happening to the interior composition at the same time?
 
 > [!NOTE]
-> Lower-mass stars take longer to reach TAMS. If your model is still running when you need to move to the Python exercises, you have enough history data to proceed.
+> Lower-mass stars take longer to reach TAMS.
 
 > [!TIP]
 > If the run is interrupted (e.g. by closing the terminal), restart it with `./re` rather than `./rn`. `./re` picks up from the most recent photo in `photos/` without restarting from the pre-main sequence. Do not use `./re` after editing `inlist_run` — use `./rn` instead so the updated inlist is copied through.
@@ -233,7 +282,7 @@ Before pooling results, compare what each observable is actually telling you.
 
 ---
 
-## Step 5 — Python: reproduce the history plots
+## Step 5 — Python: reproduce the history plots and then some
 
 Once the run has enough history data, use `mesa_reader` to reproduce the four key plots. The `python_helpers/` directory contains more complete plotting scripts — the code below is a minimal example you can run directly.
 
