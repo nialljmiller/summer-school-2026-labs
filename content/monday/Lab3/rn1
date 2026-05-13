@@ -3,5 +3,5 @@
 # rm -f restart_photo
 
 date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
-./star
+./star inlist
 date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
