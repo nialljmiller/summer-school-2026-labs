@@ -7,7 +7,7 @@ title = 'Monday Lab 1: Gyrochronology'
 
 *Author: Joey Mombarg (lead TA), Niall Miller, Eliza Frankel - Lecturer: Yaguang Li — MESA Summer School 2026, Tetons, Wyoming*
 
-*Special thanks to the Monday Lab of the MESA Summer School 2025 at KU Leuven for the template.*
+*Special thanks to the Monday Lab of the MESA Summer School 2025 at KU Leuven for the template, and Nick Saunders for sharing his MESA setup used in [Saunders et al. (2024)](https://ui.adsabs.harvard.edu/abs/2024ApJ...962..138S/abstract).*
 
 In this lab, you will learn how to set up a MESA model from scratch,
 monitor the run, and customize its output.
@@ -343,9 +343,9 @@ Save and return to your work directory.
 
 
 
-5. Now we will turn on magnetic braking. The quantity that we need for this is the change of the total angular momemtum $J$ over time. We make a distinction between the regime where the magnetic field strength is saturated and when it is growing. The regime that we are in is defined by the convective Rossy number, the ratio of the (surface) rotation period over the convective turnover time, ${\rm Ro} = P_{\rm rot}/\tau_{\rm conv}$.
+5. Now we will turn on magnetic braking. The quantity that we need for this is the change of the total angular momemtum $J$ over time. We make a distinction between the regime where the magnetic field strength is saturated and when it is growing. The regime that we are in is defined by the convective Rossy number, the ratio of the (surface) rotation period over the convective turnover time, ${\rm Ro} = P_{\rm rot}/\tau_{\rm conv}$. The Rossby number is a dimensionless parameter in fluid dynamics representing the ratio of inertial forces to Coriolis forces in a rotating fluid. It has been shown to correlate strongly with stellar magnetic activity ([Noyes et al. 1984](https://ui.adsabs.harvard.edu/abs/1984ApJ...279..763N/abstract)).
 
-
+We adopt a ${\rm d}J/{\rm d}t$ prescription that appears to reproduce many observed cluster properties (see Fig. 2 of [Chiti et al. 2024](https://ui.adsabs.harvard.edu/abs/2024ApJ...977...15C/abstract)), following the work of [Kawaler (1988)](https://ui.adsabs.harvard.edu/abs/1988ApJ...333..236K/abstract) and [van Saders & Pinsonneault (2013)](https://ui.adsabs.harvard.edu/abs/2013ApJ...776...67V/abstract). 
 If ${\rm Ro} < {\rm Ro_{\rm sat}}$ (saturated),
 $$
 \frac{{\rm d}J}{{\rm d}t} = T_0 \Omega_{\rm surf}  \left(\frac{\Omega_{\rm sat}}{\Omega_\odot}\right)^2,
@@ -383,10 +383,10 @@ $$
 {{< /details >}}
 
 
-We do not expect significant magnetic braking when the Rossby number exceeds a critical value, which we take as,
+We do not expect significant magnetic braking when the Rossby number exceeds a critical value ([Saunders et al. 2024](https://ui.adsabs.harvard.edu/abs/2024ApJ...962..138S/abstract)), which we take as,
 
 $$
-{\rm Ro_{\rm crit} = \frac{P_{\rm rot, \odot}}{{\tau_{\rm conv, \odot}}}}.
+{\rm Ro_{\rm crit}} = 0.91 {\rm Ro_{\odot}}.
 $$
 
  To enable the magnetic braking ``run_star_extras`` routine, we set the following flag in ``&controls`` equal to True.
