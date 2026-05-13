@@ -68,6 +68,30 @@
 / ! end of controls namelist
 
 
+
+&colors
+
+   use_colors = .true.
+
+   ! Paths are relative to the Lab 3 work directory.
+   ! The filter and atmosphere data live one level up in ../data/
+   instrument = '../data/filters/2MASS/2MASS'
+   stellar_atm = '../data/stellar_models/Kurucz2003all__alpha_00'
+
+   ! 2MASS is a Vega-system instrument.
+   ! vega_sed must point to the reference SED file when mag_system = 'Vega'.
+   ! Update this path if the file location differs on your machine.
+   vega_sed = '../data/stellar_models/vega_flam.csv'
+   mag_system = 'Vega'
+
+   distance = 3.0857d19   ! 10 parsecs -> absolute magnitudes
+
+   make_csv = .true.
+   colors_results_directory = 'SED'
+   sed_per_model = .false.
+
+/ ! end of colors namelist
+
 &pgstar
 
   file_white_on_black_flag = .false.
@@ -182,27 +206,3 @@
   History_Track3_yaxis_label = 'M_H'
 
 / ! end of pgstar namelist
-
-
-&colors
-
-   use_colors = .true.
-
-   ! Paths are relative to the Lab 3 work directory.
-   ! The filter and atmosphere data live one level up in ../data/
-   instrument = '../data/filters/2MASS/2MASS'
-   stellar_atm = '../data/stellar_models/Kurucz2003all__alpha_00'
-
-   ! 2MASS is a Vega-system instrument.
-   ! vega_sed must point to the reference SED file when mag_system = 'Vega'.
-   ! Update this path if the file location differs on your machine.
-   vega_sed = '../data/stellar_models/vega_flam.csv'
-   mag_system = 'Vega'
-
-   distance = 3.0857d19   ! 10 parsecs -> absolute magnitudes
-
-   make_csv = .false.
-   colors_results_directory = 'SED'
-   sed_per_model = .false.
-
-/ ! end of colors namelist

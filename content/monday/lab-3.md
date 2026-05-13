@@ -67,9 +67,127 @@ Mass assignments for this lab are: **0.4, 0.6, 0.8, 0.9, 1.0, 1.1, 1.2** $M_\odo
 
 ---
 
-## Step 2 — pgstar
+## Step 2 — Configure the inlist
 
-The pgstar display is already configured in `inlist_run`. It shows five panels that update in real time:
+Look through the below pg star display. It shows five panels that update in real time:
+
+```fortran
+
+&pgstar
+
+  file_white_on_black_flag = .false.
+
+  Grid1_win_flag = .true.
+  Grid1_win_width = 18
+  Grid1_win_aspect_ratio = 0.56
+
+  Grid1_file_flag = .true.
+  Grid1_file_dir = 'pgplot'
+  Grid1_file_prefix = 'grid_'
+  Grid1_file_interval = 10
+  Grid1_file_width = 18
+
+  Grid1_num_cols = 9
+  Grid1_num_rows = 9
+  Grid1_num_plots = 5
+
+  Grid1_xleft = 0.01
+  Grid1_xright = 0.99
+  Grid1_ybot = 0.02
+  Grid1_ytop = 0.98
+
+  ! Panel 1 — HR diagram (top left)
+  Grid1_plot_name(1) = 'HR'
+  Grid1_plot_row(1) = 1
+  Grid1_plot_rowspan(1) = 4
+  Grid1_plot_col(1) = 1
+  Grid1_plot_colspan(1) = 3
+  Grid1_plot_pad_left(1) = 0.06
+  Grid1_plot_pad_right(1) = 0.02
+  Grid1_plot_pad_top(1) = 0.05
+  Grid1_plot_pad_bot(1) = 0.06
+  Grid1_txt_scale_factor(1) = 0.65
+  HR_title = 'HR diagram'
+
+  ! Panel 2 — Delta_nu vs age (top centre)
+  Grid1_plot_name(2) = 'History_Track1'
+  Grid1_plot_row(2) = 1
+  Grid1_plot_rowspan(2) = 4
+  Grid1_plot_col(2) = 4
+  Grid1_plot_colspan(2) = 3
+  Grid1_plot_pad_left(2) = 0.06
+  Grid1_plot_pad_right(2) = 0.02
+  Grid1_plot_pad_top(2) = 0.05
+  Grid1_plot_pad_bot(2) = 0.06
+  Grid1_txt_scale_factor(2) = 0.65
+  History_Track1_title = 'Large frequency separation'
+  History_Track1_xname = 'star_age'
+  History_Track1_yname = 'Delta_nu_int'
+  History_Track1_xaxis_label = 'Age (yr)'
+  History_Track1_yaxis_label = 'Delta-nu (Hz)'
+  History_Track1_ymin = 0
+  History_Track1_ymax = 5e-4
+
+
+
+  ! Panel 3 — delta_nu02 vs age (top right)
+  Grid1_plot_name(3) = 'History_Track2'
+  Grid1_plot_row(3) = 1
+  Grid1_plot_rowspan(3) = 4
+  Grid1_plot_col(3) = 7
+  Grid1_plot_colspan(3) = 3
+  Grid1_plot_pad_left(3) = 0.06
+  Grid1_plot_pad_right(3) = 0.04
+  Grid1_plot_pad_top(3) = 0.05
+  Grid1_plot_pad_bot(3) = 0.06
+  Grid1_txt_scale_factor(3) = 0.65
+  History_Track2_title = 'Small frequency separation'
+  History_Track2_xname = 'star_age'
+  History_Track2_yname = 'delta_nu02_int'
+  History_Track2_xaxis_label = 'Age (yr)'
+  History_Track2_yaxis_label = 'delta-nu02 (Hz)'
+  History_Track2_ymin = 0
+  History_Track2_ymax = 5e-5
+
+
+  ! Panel 4 — Interior composition (bottom left)
+  Grid1_plot_name(4) = 'Abundance'
+  Grid1_plot_row(4) = 5
+  Grid1_plot_rowspan(4) = 4
+  Grid1_plot_col(4) = 1
+  Grid1_plot_colspan(4) = 5
+  Grid1_plot_pad_left(4) = 0.06
+  Grid1_plot_pad_right(4) = 0.02
+  Grid1_plot_pad_top(4) = 0.04
+  Grid1_plot_pad_bot(4) = 0.06
+  Grid1_txt_scale_factor(4) = 0.65
+  Abundance_title = 'Interior composition'
+  Abundance_num_isos_to_show = 4
+  Abundance_which_isos_to_show(1) = 'h1'
+  Abundance_which_isos_to_show(2) = 'he4'
+  Abundance_which_isos_to_show(3) = 'c12'
+  Abundance_which_isos_to_show(4) = 'n14'
+  Abundance_xaxis_name = 'mass'
+  Abundance_log_mass_frac_min = -4.0
+
+  Grid1_plot_name(5) = 'History_Track3'
+  Grid1_plot_row(5) = 5
+  Grid1_plot_rowspan(5) = 4
+  Grid1_plot_col(5) = 6
+  Grid1_plot_colspan(5) = 4
+  Grid1_plot_pad_left(5) = 0.06
+  Grid1_plot_pad_right(5) = 0.04
+  Grid1_plot_pad_top(5) = 0.05
+  Grid1_plot_pad_bot(5) = 0.06
+  Grid1_txt_scale_factor(5) = 0.65
+  History_Track3_title = 'Color-Color'
+  History_Track3_xname = 'J'
+  History_Track3_yname = 'H'
+  History_Track3_xaxis_label = 'M_J'
+  History_Track3_yaxis_label = 'M_H'
+
+/ ! end of pgstar namelist
+```
 
 | Panel | Content |
 |-------|---------|
@@ -79,7 +197,7 @@ The pgstar display is already configured in `inlist_run`. It shows five panels t
 | 4 (bottom-left) | Interior composition (H, He, C, N vs mass coordinate) |
 | 5 (bottom-right) | Text summary including `Delta_nu_int` and `delta_nu02_int` |
 
-No pgstar edits are needed.
+change the inlist to have this setup.
 
 ---
 
