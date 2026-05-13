@@ -280,7 +280,7 @@ Before pooling results, compare what each observable is actually telling you.
 
 ---
 
-## Step 5 — Python: reproduce the history plots and then some
+## Step 5 — Python -- AKA how ALL of us actually make plots!
 
 Once the run has enough history data, use `mesa_reader` to reproduce the four key plots. The `python_helpers/` directory contains more complete plotting scripts — the code below is a minimal example you can run directly.
 
@@ -372,7 +372,7 @@ with open('inlist') as f:
 
 Once the full group has contributed, look at the complete grid. How well do $\Delta\nu$ and $\delta\nu_{02}$ separate stars of different masses at the same age? How does this compare to the CMD separation from Lab 2?
 
-## Step 7 — Telescope detection map
+## Step 7 — Who cares if we cant even measure it?
 
 ### Get your own copy of the notebook
 
