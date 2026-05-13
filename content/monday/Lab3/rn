@@ -1,0 +1,3 @@
+#!/bin/bash
+cp inlist_run inlist
+./rn1
