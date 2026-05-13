@@ -25,6 +25,8 @@ end do
 Delta_nu_int = 1./(2.*Delta_nu_int)
 ```
 
+
+
 The loop accumulates $dr/c_s$ from the centre to the surface, building up the total sound travel time. The final line takes the reciprocal and divides by 2 to give $\Delta\nu$ in Hz. Because $\Delta\nu \propto \sqrt{M/R^3}$, it is a measure of the mean stellar density — it decreases as the star expands during main-sequence evolution.
 
 ---
@@ -71,7 +73,7 @@ cp ../Lab2/whatever_inlist_was_called inlist_run
 
 We are going to be crowd sourcing our science. 
 
-This link : https://docs.google.com/spreadsheets/d/1C88C5V2siCAaK8-3qgAZoNc9-9IH-RTIqFVetXQc3EM/edit?usp=sharing
+This link : [google sheets](https://docs.google.com/spreadsheets/d/1C88C5V2siCAaK8-3qgAZoNc9-9IH-RTIqFVetXQc3EM/edit?usp=sharing)
 
 Will take you to a google sheets where you can add your name to the A column and choose as mass from 
 
@@ -214,14 +216,6 @@ Look through the below pg star display. It configures pg star to show five panel
 / ! end of pgstar namelist
 ```
 
-| Panel | Content |
-|-------|---------|
-| 1 (top-left) | HR diagram |
-| 2 (top-centre) | $\Delta\nu$ vs age |
-| 3 (top-right) | $\delta\nu_{02}$ vs age |
-| 4 (bottom-left) | Interior composition (H, He, C, N vs mass coordinate) |
-| 5 (bottom-right) | Text summary including `Delta_nu_int` and `delta_nu02_int` |
-
 change your inlist to have this setup.
 
 Now lets look at the colors module setup. 
@@ -246,6 +240,10 @@ Now lets look at the colors module setup.
 / ! end of colors namelist
 ```
 
+
+conversion to microherz
+
+check if it runs in colab
 
 
 ---
@@ -374,82 +372,118 @@ with open('inlist') as f:
 
 Once the full group has contributed, look at the complete grid. How well do $\Delta\nu$ and $\delta\nu_{02}$ separate stars of different masses at the same age? How does this compare to the CMD separation from Lab 2?
 
----
-
 ## Step 7 — Telescope detection map
 
-Using the crowd-sourced grid, estimate whether each star's oscillations are detectable by current instruments.
+### Get your own copy of the notebook
 
-### Amplitude scaling relations
+The analysis lives in a shared Google Colab notebook. Open the link below, then **make a personal copy before you do anything else** — this is important so your edits don't overwrite someone else's work and vice versa.
 
-**Radial-velocity amplitude** (Campante et al. 2024, Fig. 5):
+**→ [Open the Lab 3 detection map notebook](https://colab.research.google.com/drive/1cre1fH0yrvhCE0ZWSka4A4CloBuMWWwu#scrollTo=HkRl1EuNCjsr)**
 
-$$A_\mathrm{RV} = 18 \left(\frac{L/L_\odot}{M/M_\odot}\right)^{1.5} \quad \text{cm s}^{-1}$$
+https://colab.research.google.com/drive/1cre1fH0yrvhCE0ZWSka4A4CloBuMWWwu#scrollTo=HkRl1EuNCjsr
 
-The solar value is $A_{\mathrm{RV},\odot} = 18$ cm s$^{-1}$. The exponent steepens to 1.5 below $\sim 5500$ K — the regime relevant for K dwarfs.
 
-**Photometric amplitude** (Sayeed et al. 2025, Eq. 10; activity term set to solar):
+Once it opens:
 
-$$A_\mathrm{phot} = 3.6 \,\frac{(L/L_\odot)^{0.691}}{(M/M_\odot)^{1.013}\,(T_\mathrm{eff}/5777)^{2.053}\,(T_\mathrm{eff}/5934)^{0.8}} \quad \text{ppm}$$
-
-The solar value is $A_{\mathrm{phot},\odot} = 3.6$ ppm.
-
-### Instrument noise floors
-
-| Instrument | Noise floor | Notes |
-|-----------|-------------|-------|
-| EPRV (ESPRESSO, KPF) | 30 cm s$^{-1}$ per $\sqrt{\text{min}}$ | State-of-the-art RV |
-| Kepler / TESS (best case) | 240 ppm per $\sqrt{\text{min}}$ | From 12 ppm per 6.5 hr: $12\sqrt{390} \approx 237$ ppm |
-
-### Observation time for SNR = 3
-
-Noise scales as $1/\sqrt{N}$ where $N$ is the number of 1-minute exposures. Setting SNR = 3:
-
-$$t \;[\text{days}] = \frac{(3 \times A_\mathrm{noise,1min})^2}{A^2 \times 1440}$$
-
-**Solar sanity check:**
-- EPRV: $t = (3 \times 30 / 18)^2 / 1440 \approx 0.017$ d (25 min) ✓  
-- Space photometry: $t = (3 \times 240 / 3.6)^2 / 1440 \approx 28$ d ✓
-
-### Excel formulas for the shared spreadsheet
-
-Add four calculated columns to the right of the quantities you entered in Step 6. The spreadsheet columns are:
-
-| A | B | C | D | E | F |
-|---|---|---|---|---|---|
-| mass (M☉) | L (L☉) | Teff (K) | J−Ks | Δν (μHz) | δν₀₂ (μHz) |
-
-**Column G — RV amplitude (cm s⁻¹)**
 ```
-=18*(B2/A2)^1.5
+File → Save a copy in Drive
 ```
 
-**Column H — Photometric amplitude (ppm)**
+or click the **"Copy to Drive"** button in the toolbar at the top of the page. Either way, a personal copy lands in your Google Drive and the original is untouched. Work from your copy for the rest of the lab.
+
+### Download the data
+
+In the shared Google Sheet:
+
 ```
-=3.6*B2^0.691/(A2^1.013*(C2/5777)^2.053*(C2/5934)^0.8)
+File → Download → Comma Separated Values (.csv)
 ```
 
-**Column I — Days needed for SNR = 3 with EPRV**
-```
-=(3*30/G2)^2/1440
-```
+Save the file — you'll upload it into the notebook using the file upload button in the first cell.
 
-**Column J — Days needed for SNR = 3 with space photometry**
-```
-=(3*240/H2)^2/1440
-```
+### What the notebook does
 
-Copy rows 2 downward for each team's entry. Columns G–J update automatically.
+The notebook reads the crowd-sourced grid and produces two detection map plots (photometric and RV), coloured by stellar mass with age annotated on each point. Horizontal threshold lines show the minimum detectable amplitude for each instrument and campaign length. Stars above a line are detectable; stars below are not.
+
+The parameters block near the top of the notebook lets you change instrument names, noise floors ($\sigma_0$), and campaign lengths — the threshold lines update when you rerun the cell.
 
 ### What to look for
 
-Plot columns G and H as a function of mass. The key result: stars below roughly $0.6$–$0.7\,M_\odot$ require years of continuous observation for photometric detection, and even EPRV becomes marginal below $\sim 0.4\,M_\odot$, because amplitude falls steeply as $(L/M)^{1.5}$ along the lower main sequence.
+The y-axis is logarithmic. The steep drop in amplitude towards red $J-K_s$ (K and M dwarfs) is immediately visible. The key result: below roughly $0.6\,M_\odot$ every threshold line sits above the stellar amplitude — these stars are currently inaccessible regardless of how long you observe.
 
 {{< details title="Discussion questions" closed="true" >}}
 
-- Which stars in your grid are detectable by Kepler/TESS within a typical mission lifetime (~4 yr)? By an EPRV campaign of ~1 month?
-- What does this tell you about the bias in real asteroseismic catalogues — specifically, why the C–D diagram has been populated only for FGK dwarfs so far?
+- Which stars in your grid sit above the TESS 1-sector threshold? Which need the full Kepler mission?
+- Which are accessible to ESPRESSO in a single night? Which need a multi-week campaign?
+- What does this tell you about the systematic bias in real asteroseismic catalogues — why the C–D diagram has been populated only for FGK dwarfs so far?
 - For stars where asteroseismology is detectable, how does the age precision from $\Delta\nu + \delta\nu_{02}$ compare to what you could infer from the CMD in Lab 2?
-- What would PLATO add?
+- The first solar-like oscillation detection in a K5 dwarf ($\epsilon$ Indi, $J-K_s \approx 0.75$) required 6 consecutive half-nights with ESPRESSO on the VLT. Where does it land on your plot?
+
+{{< /details >}}
+
+
+## Bonus Step — What actually matters for wobbly stars?
+
+Lab 2 showed you that changing the atmospheric boundary condition (`atm_T_tau_relation`) and the mixing length parameter ($\alpha_\mathrm{MLT}$) visibly shifts a star's track on the HR diagram and CMD. Here you will ask: *do those same changes affect seismic observables?*
+
+The answer matters because if $\Delta\nu$ and $\delta\nu_{02}$ are insensitive to surface physics, they give more trustworthy ages than CMD position — the seismic signal comes from the core, not the atmosphere.
+
+### Setup
+
+Keep your Lab 3 mass. Run a small grid varying one parameter at a time, recording seismic and photometric values at the same target age (use 1 Gyr if your model reaches it, otherwise the closest available):
+
+**Vary the atmospheric boundary condition** (fix $\alpha_\mathrm{MLT} = 1.8$):
+
+```fortran
+atm_T_tau_relation = 'Eddington'       ! reference
+atm_T_tau_relation = 'solar_Hopf'
+atm_T_tau_relation = 'Krishna_Swamy'
+atm_T_tau_relation = 'Trampedach_solar'
+```
+
+**Vary the mixing length parameter** (fix `atm_T_tau_relation = 'Eddington'`):
+
+```fortran
+mixing_length_alpha = 1.5
+mixing_length_alpha = 2.0
+mixing_length_alpha = 2.5
+mixing_length_alpha = 3.0
+```
+
+> [!CAUTION]
+> Change `star_history_name` for every run so files do not overwrite each other — e.g. `'1p0Msun_Eddington_alpha1p8.data'`.
+
+### Extract the values
+
+Use the same snippet as Step 6, just targeting your chosen age:
+
+```python
+import mesa_reader as mr
+import numpy as np
+
+h = mr.MesaData('LOGS/history.data')
+target_age = 1e9   # adjust if your model hasn't reached 1 Gyr
+
+idx = np.argmin(np.abs(h.star_age - target_age))
+print(f"Age:        {h.star_age[idx]/1e9:.3f} Gyr")
+print(f"Teff:       {h.Teff[idx]:.0f} K")
+print(f"L/Lsun:     {10**h.log_L[idx]:.4f}")
+print(f"J-Ks:       {h.J[idx] - h.Ks[idx]:.4f}")
+print(f"Delta_nu:   {h.Delta_nu_int[idx]*1e6:.2f} uHz")
+print(f"delta_nu02: {h.delta_nu02_int[idx]*1e6:.2f} uHz")
+```
+
+### Enter results into the shared spreadsheet
+
+Go to the **Lab 3 Bonus** tab in the [shared spreadsheet](https://docs.google.com/spreadsheets/d/1C88C5V2siCAaK8-3qgAZoNc9-9IH-RTIqFVetXQc3EM/edit?usp=sharing). Enter one row per run. Columns D and E are the parameters you changed; columns F–J are the MESA output. Columns K–M calculate automatically.
+
+The four bar charts at the bottom of the sheet show how much Teff, $J-K_s$, $\Delta\nu$, and $\delta\nu_{02}$ vary across all models. Compare the vertical scale of the seismic panels to the photometric ones.
+
+{{< details title="Discussion questions" closed="true" >}}
+
+- Which observables change the most between boundary conditions? Which barely move?
+- Which observables change the most with $\alpha_\mathrm{MLT}$? Does the direction make physical sense?
+- If you were trying to measure stellar ages and could only observe one of Teff, $J-K_s$, or $\delta\nu_{02}$, which would you choose and why?
+- What does the sensitivity (or lack of it) to surface physics tell you about *where* the age information in $\delta\nu_{02}$ comes from?
 
 {{< /details >}}
