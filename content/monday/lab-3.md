@@ -58,17 +58,18 @@ The loop computes $dc_s/r$ shell by shell, approximating the radial derivative o
 
 ## Step 1 — Setup
 
-Lab 3 is a self-contained working directory. You do not need to copy anything from Lab 2. You can copy your inlist from Lab 2 into this lab for a faster setup.
+Lab 3 is a self-contained working directory. You do not need to copy anything from Lab 2 but you can copy your inlist from Lab 2 into this lab for a faster setup.
+
 Something like:
 ```bash
-cd conent/monday/Lab3
+cd conent/monday/Lab3       #move to where the directory is
 
-ls          #to see whats here
+ls                          #to see whats here
 
-cat rn      #lets see what rn does (it copies 'inlist_run' to 'inlist' then calls rn1)
+cat rn                      #lets see what rn does (it copies 'inlist_run' to 'inlist' then calls rn1)
 
-cat rn1     #it calls star with 'inlist'
-            #so we have established that 'inlist_run' is what we modify. It will be copied to inlsit for execution.
+cat rn1                     #it calls star with 'inlist'
+                            #so we have established that 'inlist_run' is what we modify. It will be copied to inlsit for execution.
 cp ../Lab2/whatever_inlist_was_called inlist_run
 ```
 
@@ -288,6 +289,18 @@ Before pooling results, compare what each observable is actually telling you.
 
 Once the run has enough history data, use `mesa_reader` to reproduce the four key plots. The `python_helpers/` directory contains more complete plotting scripts — the code below is a minimal example you can run directly.
 
+
+{{< details title="Python tips" closed="true" >}}
+You have options with how to run these. The easiest route is to probably launch python in live mode in your working directory.
+```bash
+cd conent/monday/Lab3       #move to where the working directory is
+
+python                      #open python live and paste the below code into it one by one so wee the plots.
+```
+You can also save this code into a script and run the script. 
+{{< /details >}}
+
+
 ```python
 import mesa_reader as mr
 import matplotlib.pyplot as plt
@@ -330,6 +343,67 @@ plt.show()
 
 > [!TIP]
 > `Delta_nu_int` and `delta_nu02_int` come from `run_star_extras.f90` as extra history columns — they are NOT in `history_columns.list` and you do not need to add them there. If you get an `AttributeError` on `h.J` or `h.Ks`, run `head -7 LOGS/history.data` and check the sixth line for the exact column names written by the colors module.
+
+
+**Phase-colored CMD** — color each point by evolutionary phase using MESA's `phase_of_evolution` column:
+
+```python
+import mesa_reader as mr
+import matplotlib.pyplot as plt
+import numpy as np
+
+h = mr.MesaData('LOGS/history.data')
+
+phase_colors = {
+    2: ('#FF69B4', 'Pre-MS'), 3: ('#00FF00', 'ZAMS'),
+    4: ('#0000FF', 'IAMS'),   5: ('#FF8C00', 'TAMS'),
+}
+
+color  = h.J - h.Ks
+mag    = h.Ks
+phases = h.phase_of_evolution.astype(int)
+
+fig, ax = plt.subplots(figsize=(7, 6))
+for code, (c, label) in phase_colors.items():
+    mask = phases == code
+    if mask.any():
+        ax.scatter(color[mask], mag[mask], s=10, color=c, label=label)
+
+ax.invert_yaxis()
+ax.set_xlabel(r'$J - K_s$')
+ax.set_ylabel(r'$K_s$')
+ax.set_title('CMD coloured by evolutionary phase')
+ax.legend()
+plt.tight_layout()
+plt.show()
+```
+
+**3D CMD** — lift the CMD into 3D using $\Delta\nu$ as the third axis, revealing how the seismic observable evolves along the sequence:
+
+```python
+import mesa_reader as mr
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+
+h = mr.MesaData('LOGS/history.data')
+
+fig = plt.figure(figsize=(9, 7))
+ax  = fig.add_subplot(111, projection='3d')
+
+ax.scatter(h.J - h.Ks, h.Ks, h.Delta_nu_int * 1e6, s=5, c=h.star_age, cmap='plasma')
+
+ax.set_xlabel(r'$J - K_s$')
+ax.set_ylabel(r'$K_s$')
+ax.set_zlabel(r'$\Delta\nu$ ($\mu$Hz)')
+ax.invert_yaxis()
+plt.tight_layout()
+plt.show()
+```
+
+
+> [!TIP]
+> Why dont you modify this plotting code? What happens when we plot the CMD with `delta_nu02_int` as the Z-axis?
+
 
 ---
 
