@@ -283,8 +283,7 @@ Before pooling results, compare what each observable is actually telling you.
 
 **Comparison with Lab 2.** In Lab 2 you measured stellar ages from CMD position — the $J-K_s$ colour and absolute $K_s$ magnitude. 
 
-{{< details title="The method showin in Lab2 has two limitations, What are they?
-" closed="true" >}}
+{{< details title="The method showin in Lab2 has two limitations, What are they?" closed="true" >}}
 **(1)** at young ages the main sequence is nearly vertical in colour-magnitude space, giving poor age resolution
 **(2)** photometric uncertainty propagates directly into age uncertainty through the isochrone width. 
 
