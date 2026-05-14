@@ -1,7 +1,7 @@
 +++
 date = '2026-04-06T13:38:04+02:00'
 draft = false
-title = 'Monday Lab 1: Gyrochronology'
+title = 'Lab 1: Gyrochronology'
 +++
 
 
@@ -500,4 +500,28 @@ Hit Enter once you have finished inspecting the plots.
 ```
 {{< /details >}}
 
+
+<br>
+
+<button onclick="revealReward()">
+  Finished? Click here 🎁
+</button>
+
+<div id="reward" style="display:none; margin-top:15px;">
+  <img src="/summer-school-2026-labs/bean.gif" alt="bean">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+<script>
+function revealReward() {
+  document.getElementById("reward").style.display = "block";
+
+  confetti({
+    particleCount: 150,
+    spread: 100,
+    origin: { y: 0.6 }
+  });
+}
+</script>
 
