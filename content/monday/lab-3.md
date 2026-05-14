@@ -273,7 +273,7 @@ The model will run from the pre-main sequence to **T**erminal **A**ge **M**ain *
 
 ---
 
-## Step 4 — Age diagnostics: seismic vs CMD
+## Step 4 — Lets think about this! -- Age diagnostics: seismic vs CMD
 
 Before pooling results, compare what each observable is actually telling you.
 
@@ -281,7 +281,15 @@ Before pooling results, compare what each observable is actually telling you.
 
 **$\delta\nu_{02}$ as an age clock.** The small separation probes the sound speed gradient in the core. As hydrogen burns, the mean molecular weight of the core increases, the sound speed drops, and the gradient steepens — so $\delta\nu_{02}$ decreases monotonically with central hydrogen abundance. This makes $\delta\nu_{02}$ a nearly mass-independent age indicator along the main sequence at fixed $\Delta\nu$. This is the basis of the Christensen-Dalsgaard (C–D) diagram: plotting $\delta\nu_{02}$ versus $\Delta\nu$ produces a grid where lines of constant mass and constant age cross at different angles, allowing both to be read off simultaneously from two observables.
 
-**Comparison with Lab 2.** In Lab 2 you measured stellar ages from CMD position — the $J-K_s$ colour and absolute $K_s$ magnitude. That method has two limitations: (1) at young ages the main sequence is nearly vertical in colour-magnitude space, giving poor age resolution; and (2) photometric uncertainty propagates directly into age uncertainty through the isochrone width. Seismic observables sidestep both. The $\delta\nu_{02}$ versus $\Delta\nu$ diagram separates models that are photometrically almost indistinguishable on the CMD, and the observables are distance-independent.
+**Comparison with Lab 2.** In Lab 2 you measured stellar ages from CMD position — the $J-K_s$ colour and absolute $K_s$ magnitude. 
+
+{{< details title="The method showin in Lab2 has two limitations, What are they?
+" closed="true" >}}
+**(1)** at young ages the main sequence is nearly vertical in colour-magnitude space, giving poor age resolution
+**(2)** photometric uncertainty propagates directly into age uncertainty through the isochrone width. 
+
+Seismic observables sidestep both. The $\delta\nu_{02}$ versus $\Delta\nu$ diagram separates models that are photometrically almost indistinguishable on the CMD, and the observables are distance-independent.
+{{< /details >}}
 
 ---
 
