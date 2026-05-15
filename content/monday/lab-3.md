@@ -33,7 +33,7 @@ Delta_nu_int = 1./(2.*Delta_nu_int)
 
 
 
-The loop accumulates $dr/c_s$ from the centre to the surface, building up the total sound travel time. The final line takes the reciprocal and divides by 2 to give $\Delta\nu$ in Hz. Because $\Delta\nu \propto \sqrt{M/R^3}$, it is a measure of the mean stellar density -- it decreases as the star expands during main-sequence evolution.
+The loop accumulates $dr/c_s$, building up the total sound travel time. The final line takes the reciprocal and divides by 2 to give $\Delta\nu$ in Hz. Because $\Delta\nu \propto \sqrt{M/R^3}$, it is a measure of the mean stellar density -- it decreases as the star expands during main-sequence evolution.
 
 ---
 
@@ -103,7 +103,7 @@ Mass assignments for this lab are: **0.4, 0.6, 0.8, 0.9, 1.0, 1.1, 1.2** $M_\odo
 
 ## Step 2 -- Configure the inlist
 
-Look through the below pg star display. It configures pg star to show five panels that update in real time:
+Look through the below pgstar display. It configures pgstar to show five panels that update in real time:
 
 Before you run anything, you need to set up two things: the pgstar live display and the colors module. 
 
@@ -176,6 +176,7 @@ Copy this into the &pgstar section of your inlist_run:
   History_Track1_yaxis_label = 'Delta-nu (Hz)'
   History_Track1_ymin = 0
   History_Track1_ymax = 5e-4
+  History_Track1_reverse_xaxis = .false.
 
 
 
@@ -229,7 +230,7 @@ Copy this into the &pgstar section of your inlist_run:
   Grid1_plot_pad_top(5) = 0.05
   Grid1_plot_pad_bot(5) = 0.06
   Grid1_txt_scale_factor(5) = 0.65
-  History_Track3_title = 'Color-Color'
+  History_Track3_title = '2MASS mags'
   History_Track3_xname = 'J'
   History_Track3_yname = 'H'
   History_Track3_xaxis_label = 'M_J'
@@ -280,7 +281,7 @@ The model will run from the pre-main sequence to **T**erminal **A**ge **M**ain *
 - What is happening to the interior composition at the same time?
 
 > [!NOTE]
-> Lower-mass stars take longer to reach TAMS.
+> Lower-mass stars take longer to reach TAMS. ($M_\odot$ 0.4 with 1 core takes ~ 10 mins)
 
 > [!TIP]
 > If the run is interrupted (e.g. by closing the terminal), restart it with `./re` rather than `./rn`. `./re` picks up from the most recent photo in `photos/` without restarting from the pre-main sequence. Do not use `./re` after editing `inlist_run` -- use `./rn` instead so the updated inlist is copied through.
@@ -420,17 +421,16 @@ target_ages = [1e9, 3e9, 5e9, 7e9, 9e9]
 
 for age in target_ages:
     idx = np.argmin(np.abs(h.star_age - age))
-    if h.star_age[idx] < age * 1.2:
-        print(f"Age: {h.star_age[idx]/1e9:.1f} Gyr  "
-              f"Teff: {h.Teff[idx]:.0f} K  "
-              f"L/Lsun: {10**h.log_L[idx]:.4f}  "
-              f"J-Ks: {h.J[idx] - h.Ks[idx]:.4f}  "
-              f"Delta_nu: {h.Delta_nu_int[idx]*1e6:.2f} uHz  "
-              f"delta_nu02: {h.delta_nu02_int[idx]*1e6:.2f} uHz")
+    print(f"Age: {h.star_age[idx]/1e9:.1f} Gyr  "
+          f"Teff: {h.Teff[idx]:.0f} K  "
+          f"L/Lsun: {10**h.log_L[idx]:.4f}  "
+          f"J-Ks: {h.J[idx] - h.Ks[idx]:.4f}  "
+          f"Delta_nu: {h.Delta_nu_int[idx]*1e6:.2f} uHz  "
+          f"delta_nu02: {h.delta_nu02_int[idx]*1e6:.2f} uHz")
 ```
 
 > [!NOTE]
-> If your model hasn't reached a target age yet, the row for that age will be missing from the output -- this is fine, enter what you have.
+> If your model hasn't reached a target age yet, the row for that age will be reported as the closest age to the query -- this is fine, enter what you have.
 
 ...and to check the mass from the inlist (we can check the inlist as we earlier showed that the ```inlist``` file is made as a copy of the ```inlist_run``` file when we do ```./rn```)
 
@@ -452,7 +452,11 @@ This link : [google sheets](https://docs.google.com/spreadsheets/d/1C88C5V2siCAa
 Once the full group has contributed, look at the complete grid. How well do $\Delta\nu$ and $\delta\nu_{02}$ separate stars of different masses at the same age? How does this compare to the CMD separation from Lab 2?
 
 
-## Step 7 -- Who cares if we cant even measure it?
+Age constraints from seismology are only useful for stars we can actually observe oscillating. 
+The next step takes the grid you just built and allows us to probe which of these stars are detectable, and with what instrument.
+
+
+## Step 7 -- Who cares if we can't even measure it?
 
 ### Get your own copy of the notebook
 
@@ -497,7 +501,7 @@ The y-axis is logarithmic. The steep drop in amplitude towards red $J-K_s$ (K an
 - Which are accessible to ESPRESSO in a single night? Which need a multi-week campaign?
 - What does this tell you about the systematic bias in real asteroseismic catalogues? (https://arxiv.org/abs/2403.16333v1)
 - For stars where asteroseismology is detectable, how does the age precision from $\Delta\nu + \delta\nu_{02}$ compare to what you could infer from the CMD in Lab 2?
-- One of the first solar-like oscillation detection in a K5 dwarf ($\epsilon$ Indi, $J-K_s \approx 0.75$) (https://arxiv.org/abs/2403.16333) required 6 consecutive half-nights with ESPRESSO on the VLT. Where does it land on your plot?
+- One of the first solar-like oscillation detection in a K5 dwarf ($\epsilon$ Indi) (https://arxiv.org/abs/2403.16333) required 6 consecutive half-nights with ESPRESSO on the VLT. Where does it land on your plot?
 - What might make this a "best case scenario" study? What have we not considered? 
 {{< /details >}}
 
@@ -548,13 +552,12 @@ target_ages = [1e9, 3e9, 5e9, 7e9, 9e9]
 
 for age in target_ages:
     idx = np.argmin(np.abs(h.star_age - age))
-    if h.star_age[idx] < age * 1.2:
-        print(f"Age: {h.star_age[idx]/1e9:.1f} Gyr  "
-              f"Teff: {h.Teff[idx]:.0f} K  "
-              f"L/Lsun: {10**h.log_L[idx]:.4f}  "
-              f"J-Ks: {h.J[idx] - h.Ks[idx]:.4f}  "
-              f"Delta_nu: {h.Delta_nu_int[idx]*1e6:.2f} uHz  "
-              f"delta_nu02: {h.delta_nu02_int[idx]*1e6:.2f} uHz")
+    print(f"Age: {h.star_age[idx]/1e9:.1f} Gyr  "
+          f"Teff: {h.Teff[idx]:.0f} K  "
+          f"L/Lsun: {10**h.log_L[idx]:.4f}  "
+          f"J-Ks: {h.J[idx] - h.Ks[idx]:.4f}  "
+          f"Delta_nu: {h.Delta_nu_int[idx]*1e6:.2f} uHz  "
+          f"delta_nu02: {h.delta_nu02_int[idx]*1e6:.2f} uHz")
 ```
 
 ### Enter results into the shared spreadsheet
