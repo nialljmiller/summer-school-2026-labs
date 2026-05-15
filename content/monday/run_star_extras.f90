@@ -26,12 +26,13 @@
        use star_def
        use const_def
        use math_lib
+       use colors_lib
 
 
        implicit none
 
        real(dp) :: t_spindown
-       real(dp), save :: ages(5), Teffs(5), Prots(5), total_AMs(5)
+       real(dp), save :: ages(5), Teffs(5), Prots(5), total_AMs(5), Lums(5)
        real(dp) :: target_age(6)
        real(dp) :: dJdt_hist
        integer :: target_age_ID
@@ -88,6 +89,7 @@
 
             ages      = 0._dp
             Teffs     = 0._dp
+            Lums      = 0._dp
             Prots     = 0._dp
             total_AMs = 0._dp
 
@@ -97,6 +99,7 @@
             target_age(4) = 7d9 !2.0d9
             target_age(5) = 9d9 !3.5d9
             target_age(6) = 1d99
+
 
          end subroutine extras_startup
 
@@ -289,8 +292,12 @@
          ! note: cannot request retry; extras_check_model can do that.
          integer function extras_finish_step(id)
             integer, intent(in) :: id
-            integer :: ierr
+            integer :: ierr, k, n_cols
+            real(dp) :: m_div_h
+            real(dp), allocatable :: color_vals(:)
+            character(len=80), allocatable :: color_names(:)
             type (star_info), pointer :: s
+
             ierr = 0
             call star_ptr(id, s, ierr)
             if (ierr /= 0) return
@@ -329,7 +336,7 @@
 
             write(*,*) '***********************************'
             do k =1,5
-              write(*,'(A,F10.5,A,I5,A,F10.3,A,F10.3)') '  age [Gyr]:  ', ages(k), '  Teff [K]:  ', nint(Teffs(k)), '  P_rot [d]:  ', round(Prots(k),3), '  log(J_tot):  ', round(total_AMs(k),3)
+              write(*,'(A,F10.5,A,I5,A,F10.3,A,F10.3,A,F10.3)') '  age [Gyr]:  ', ages(k), '  Teff [K]:  ', nint(Teffs(k)), ' Luminosity [log(L/L_sun)]: ', round(Lums(k),3), '  P_rot [d]:  ', round(Prots(k),3), '  log(J_tot):  ', round(total_AMs(k),3)
             end do
             write(*,*) '***********************************'
 
@@ -581,30 +588,35 @@
              if ((target_age_i == target_age(5)) .and. (ages(5) == 0._dp) .and. ok_time_step) then
                ages(5)      = s% star_age/1d9
                Teffs(5)     = s% Teff
+               Lums(5)      = s% log_surface_luminosity
                Prots(5)     = 1._dp/(s% omega_avg_surf*86400/(2._dp*pi))
                total_AMs(5) = safe_log10(s% total_angular_momentum)
 
              else if ((target_age_i == target_age(4)) .and. (ages(4) == 0._dp) .and. ok_time_step) then
                ages(4)      = s% star_age/1d9
                Teffs(4)     = s% Teff
+               Lums(4)      = s% log_surface_luminosity
                Prots(4)     = 1._dp/(s% omega_avg_surf*86400/(2._dp*pi))
                total_AMs(4) = safe_log10(s% total_angular_momentum)
 
              else if ((target_age_i == target_age(3)) .and. (ages(3) == 0._dp) .and. ok_time_step) then
                ages(3)      = s% star_age/1d9
                Teffs(3)     = s% Teff
+               Lums(3)      = s% log_surface_luminosity
                Prots(3)     = 1._dp/(s% omega_avg_surf*86400/(2._dp*pi))
                total_AMs(3) = safe_log10(s% total_angular_momentum)
 
              else if ((target_age_i == target_age(2)) .and. (ages(2) == 0._dp) .and. ok_time_step) then
                ages(2)      = s% star_age/1d9
                Teffs(2)     = s% Teff
+               Lums(2)      = s% log_surface_luminosity
                Prots(2)     = 1._dp/(s% omega_avg_surf*86400/(2._dp*pi))
                total_AMs(2) = safe_log10(s% total_angular_momentum)
 
              else if ((target_age_i == target_age(1)) .and. (ages(1) == 0._dp) .and. ok_time_step) then
                ages(1)      = s% star_age/1d9
                Teffs(1)     = s% Teff
+               Lums(1)      = s% log_surface_luminosity
                Prots(1)     = 1._dp/(s% omega_avg_surf*86400/(2._dp*pi))
                total_AMs(1) = safe_log10(s% total_angular_momentum)
 
