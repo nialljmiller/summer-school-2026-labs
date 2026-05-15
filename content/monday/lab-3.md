@@ -101,6 +101,21 @@ Mass assignments for this lab are: **0.4, 0.6, 0.8, 0.9, 1.0, 1.1, 1.2** $M_\odo
 
 Look through the below pg star display. It configures pg star to show five panels that update in real time:
 
+Before you run anything, you need to set up two things: the pgstar live display and the colors module. 
+
+pgstar is MESA's built-in plotting system -- it opens a window that updates every few timesteps so you can watch the star evolve in real time. 
+The colors module computes synthetic photometry from the model atmosphere at each step, which is what gives you the 2MASS magnitudes in the history file.
+
+The namelist below configures five panels:
+
+- HR diagram
+- $\Delta\nu$ vs age
+- $\delta\nu_{02}$ vs age
+- Interior abundance profile
+- 2MASS magnitude track
+
+Copy this into the &pgstar section of your inlist_run:
+
 ```fortran
 
 &pgstar
@@ -219,9 +234,11 @@ Look through the below pg star display. It configures pg star to show five panel
 / ! end of pgstar namelist
 ```
 
-change your ```inlist_run``` to have this setup.
-
-Now lets look at the colors module setup. 
+Now for the colors module. 
+The namelist below is what you need, but we should check the paths before you paste it in. 
+The stellar_atm and vega_sed paths point to files that need to exist on your machine. 
+Run ```ls``` on those paths to confirm they resolve before continuing. 
+Once you have verified them, add this &colors namelist to your inlist_run:
 
 ```fortran
 &colors
@@ -242,7 +259,7 @@ Now lets look at the colors module setup.
 
 / ! end of colors namelist
 ```
-
+The distance = 3.0857d19 sets the distance to 10 parsecs, which is what puts the magnitudes on the absolute scale you used in Lab 2.
 
 ---
 
