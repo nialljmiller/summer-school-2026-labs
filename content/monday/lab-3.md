@@ -6,8 +6,6 @@ title = 'Lab 3: Asteroseismology'
 
 *Authors: Niall Miller (lead TA), Eliza Frankel, Joey Mombarg - Lecturer: Yaguang Li — MESA Summer School 2026, Tetons, Wyoming*
 
-# Lab 3: Asteroseismology
-
 In Labs 1 and 2 we used rotation periods and CMD positions to constrain stellar ages. In this lab we add a third technique: asteroseismology. We will compute two seismic observables -- the large frequency separation $\Delta\nu$ and the small frequency separation $\delta\nu_{02}$ -- and ask whether they constrain ages better than what we measured in Lab 2. We will also build a map of which stars are actually accessible to real space missions.
 
 All of the code that computes the seismic quantities is already implemented in `run_star_extras.f90`. You do not need to modify it. Your job is to configure the run, interpret the outputs, and combine results across the group.
