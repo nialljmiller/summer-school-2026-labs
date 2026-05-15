@@ -254,7 +254,7 @@ Now lets look at the colors module setup.
 ./rn
 ```
 
-The model will run from the pre-main sequence to **T**erminal **A**ge **M**ain **S**equence (central hydrogen fraction below 1%). Watch the five panels as the star evolves. Pay attention to:
+The model will run from the pre-main sequence to **T**erminal **A**ge **M**ain **S**equence. Pay attention to:
 
 - How quickly does $\Delta\nu$ change compared to the HR diagram position?
 - How does $\delta\nu_{02}$ behave -- does it change monotonically?
