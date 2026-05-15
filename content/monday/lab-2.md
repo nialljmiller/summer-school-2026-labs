@@ -1,5 +1,6 @@
 # Lab 2 - Exploring MESA Custom Colors!
 
+*Authors: Eliza Frankel (lead TA), Niall Miller, Joey Mombarg - Lecturer: Yaguang Li — MESA Summer School 2026, Tetons, Wyoming*
 
 The MESA colors module allows us to generate synthetic photometry while running MESA stellar evolution models! It is a great way to merge observational and theoretical astronomy. With the colors module, we can specify what filter system and stellar atmosphere we want to use, and on top of regular MESA outputs (effective temperature, luminosity, age, etc.) we get bolometric magnitude, M$_{bol}$, bolometric flux, F$_{bol}$, and many synthetic magnitudes. For more information on the colors module, look at https://github.com/MESAHub/mesa/tree/main/colors.
 
