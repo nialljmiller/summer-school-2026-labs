@@ -4,7 +4,7 @@ author: Niall Miller
 
 # Lab 3: Asteroseismology
 
-In Labs 1 and 2 we used rotation periods and CMD positions to constrain stellar ages. In this lab we add a third technique: asteroseismology. We will compute two seismic observables — the large frequency separation $\Delta\nu$ and the small frequency separation $\delta\nu_{02}$ — and ask whether they constrain ages better than what we measured in Lab 2. We will also build a map of which stars are actually accessible to real space missions.
+In Labs 1 and 2 we used rotation periods and CMD positions to constrain stellar ages. In this lab we add a third technique: asteroseismology. We will compute two seismic observables -- the large frequency separation $\Delta\nu$ and the small frequency separation $\delta\nu_{02}$ -- and ask whether they constrain ages better than what we measured in Lab 2. We will also build a map of which stars are actually accessible to real space missions.
 
 All of the code that computes the seismic quantities is already implemented in `run_star_extras.f90`. You do not need to modify it. Your job is to configure the run, interpret the outputs, and combine results across the group.
 
@@ -26,12 +26,12 @@ Delta_nu_int = 1./(2.*Delta_nu_int)
 ```
 
 > [!TIP]
-> !!!!!DO NOT TOUCH 'run_star_extras.f90'!!!!!. All of the code that computes the seismic quantities is already implemented in `run_star_extras.f90`. You do not need to modify it. Your job is to configure the run, interpret the outputs, and combine results across the group.
+> DO NOT TOUCH 'run_star_extras.f90'. All of the code that computes the seismic quantities is already implemented in `run_star_extras.f90`. You do not need to modify it. Your job is to configure the run, interpret the outputs, and combine results across the group.
 
 
 
 
-The loop accumulates $dr/c_s$ from the centre to the surface, building up the total sound travel time. The final line takes the reciprocal and divides by 2 to give $\Delta\nu$ in Hz. Because $\Delta\nu \propto \sqrt{M/R^3}$, it is a measure of the mean stellar density — it decreases as the star expands during main-sequence evolution.
+The loop accumulates $dr/c_s$ from the centre to the surface, building up the total sound travel time. The final line takes the reciprocal and divides by 2 to give $\Delta\nu$ in Hz. Because $\Delta\nu \propto \sqrt{M/R^3}$, it is a measure of the mean stellar density -- it decreases as the star expands during main-sequence evolution.
 
 ---
 
@@ -52,24 +52,24 @@ delta_nu02_int = delta_nu02_int - s% csound(1)/s% r(1)
 delta_nu02_int = -2 * Delta_nu_int * delta_nu02_int / (3.1415926535**2. * nu_max)
 ```
 
-The loop computes $dc_s/r$ shell by shell, approximating the radial derivative of the sound speed as a finite difference. The surface boundary term $c_s(R)/R$ is subtracted after the loop. The whole integral is then scaled by $-2\Delta\nu/(\pi^2\nu_\mathrm{max})$ to give $\delta\nu_{02}$ in Hz. Because the sound speed gradient in the core steepens as hydrogen is depleted, $\delta\nu_{02}$ decreases monotonically with age — making it a direct age clock.
+The loop computes $dc_s/r$ shell by shell, approximating the radial derivative of the sound speed as a finite difference. The surface boundary term $c_s(R)/R$ is subtracted after the loop. The whole integral is then scaled by $-2\Delta\nu/(\pi^2\nu_\mathrm{max})$ to give $\delta\nu_{02}$ in Hz. Because the sound speed gradient in the core steepens as hydrogen is depleted, $\delta\nu_{02}$ decreases monotonically with age - making it a direct age clock. (https://ui.adsabs.harvard.edu/abs/2005MNRAS.356..671O/abstract)
 
 ---
 
-## Step 1 — Setup
+## Step 1 -- Setup
 
 Lab 3 is a self-contained working directory. You do not need to copy anything from Lab 2 but you can copy your inlist from Lab 2 into this lab for a faster setup.
 
-Something like:
+A good check when inheriting a MESA working directory could go something like:
 ```bash
-cd conent/monday/Lab3       #move to where the directory is
+cd content/monday/Lab3       #move to where the directory is
 
 ls                          #to see whats here
 
 cat rn                      #lets see what rn does (it copies 'inlist_run' to 'inlist' then calls rn1)
 
 cat rn1                     #it calls star with 'inlist'
-                            #so we have established that 'inlist_run' is what we modify. It will be copied to inlsit for execution.
+                            #so we have established that 'inlist_run' is what we modify. It will be copied to inlist for execution.
 cp ../Lab2/whatever_inlist_was_called inlist_run
 ```
 
@@ -95,11 +95,11 @@ initial_mass = X.X   ! set to your assigned value
 Mass assignments for this lab are: **0.4, 0.6, 0.8, 0.9, 1.0, 1.1, 1.2** $M_\odot$.
 
 > [!NOTE]
-> The `rn` script copies `inlist_run` to `inlist` before launching the model — always edit `inlist_run`, not `inlist` directly. `inlist` is overwritten every time you run.
+> The `rn` script copies `inlist_run` to `inlist` before launching the model -- always edit `inlist_run`, not `inlist` directly. `inlist` is overwritten every time you run.
 
 ---
 
-## Step 2 — Configure the inlist
+## Step 2 -- Configure the inlist
 
 Look through the below pg star display. It configures pg star to show five panels that update in real time:
 
@@ -128,7 +128,7 @@ Look through the below pg star display. It configures pg star to show five panel
   Grid1_ybot = 0.02
   Grid1_ytop = 0.98
 
-  ! Panel 1 — HR diagram (top left)
+  ! Panel 1 -- HR diagram (top left)
   Grid1_plot_name(1) = 'HR'
   Grid1_plot_row(1) = 1
   Grid1_plot_rowspan(1) = 4
@@ -141,7 +141,7 @@ Look through the below pg star display. It configures pg star to show five panel
   Grid1_txt_scale_factor(1) = 0.65
   HR_title = 'HR diagram'
 
-  ! Panel 2 — Delta_nu vs age (top centre)
+  ! Panel 2 -- Delta_nu vs age (top centre)
   Grid1_plot_name(2) = 'History_Track1'
   Grid1_plot_row(2) = 1
   Grid1_plot_rowspan(2) = 4
@@ -162,7 +162,7 @@ Look through the below pg star display. It configures pg star to show five panel
 
 
 
-  ! Panel 3 — delta_nu02 vs age (top right)
+  ! Panel 3 -- delta_nu02 vs age (top right)
   Grid1_plot_name(3) = 'History_Track2'
   Grid1_plot_row(3) = 1
   Grid1_plot_rowspan(3) = 4
@@ -182,7 +182,7 @@ Look through the below pg star display. It configures pg star to show five panel
   History_Track2_ymax = 5e-5
 
 
-  ! Panel 4 — Interior composition (bottom left)
+  ! Panel 4 -- Interior composition (bottom left)
   Grid1_plot_name(4) = 'Abundance'
   Grid1_plot_row(4) = 5
   Grid1_plot_rowspan(4) = 4
@@ -221,39 +221,34 @@ Look through the below pg star display. It configures pg star to show five panel
 / ! end of pgstar namelist
 ```
 
-change your inlist to have this setup.
+change your ```inlist_run``` to have this setup.
 
 Now lets look at the colors module setup. 
 
 ```fortran
 &colors
 
-   use_colors = .true.      #use colors
+   use_colors = .true.                                              !use colors
 
-   instrument = '../data/filters/2MASS/2MASS'                       !#We are assuming that data is in this dir
-   stellar_atm = '../data/stellar_models/Kurucz2003all__alpha_00'   !#check to see where it actually is. 
+   instrument = '../data/filters/2MASS/2MASS'                       !We are assuming that data is in this dir
+   stellar_atm = '../data/stellar_models/Kurucz2003all__alpha_00'   !check to see where it actually is. 
 
-   vega_sed = '../data/stellar_models/vega_flam.csv'                !#same as above
+   vega_sed = '../data/stellar_models/vega_flam.csv'                !same as above
    mag_system = 'Vega'                                              
 
-   distance = 3.0857d19                                             !#10 parsecs -> absolute magnitudes
+   distance = 3.0857d19                                             !10 parsecs -> absolute magnitudes
 
-   make_csv = .true.                                                !#Make a csv for each filter
-   colors_results_directory = 'SED'                                 !#put them in the SED/ directory
-   sed_per_model = .false.                                          !#overwrite them at every step
+   make_csv = .true.                                                !Make a csv for each filter
+   colors_results_directory = 'SED'                                 !put them in the SED/ directory
+   sed_per_model = .false.                                          !overwrite them at every step
 
 / ! end of colors namelist
 ```
 
 
-conversion to microherz
-
-check if it runs in colab
-
-
 ---
 
-## Step 3 — Run the model
+## Step 3 -- Run the model
 
 ```bash
 ./rn
@@ -262,28 +257,30 @@ check if it runs in colab
 The model will run from the pre-main sequence to **T**erminal **A**ge **M**ain **S**equence (central hydrogen fraction below 1%). Watch the five panels as the star evolves. Pay attention to:
 
 - How quickly does $\Delta\nu$ change compared to the HR diagram position?
-- How does $\delta\nu_{02}$ behave — does it change monotonically?
+- How does $\delta\nu_{02}$ behave -- does it change monotonically?
 - What is happening to the interior composition at the same time?
 
 > [!NOTE]
 > Lower-mass stars take longer to reach TAMS.
 
 > [!TIP]
-> If the run is interrupted (e.g. by closing the terminal), restart it with `./re` rather than `./rn`. `./re` picks up from the most recent photo in `photos/` without restarting from the pre-main sequence. Do not use `./re` after editing `inlist_run` — use `./rn` instead so the updated inlist is copied through.
+> If the run is interrupted (e.g. by closing the terminal), restart it with `./re` rather than `./rn`. `./re` picks up from the most recent photo in `photos/` without restarting from the pre-main sequence. Do not use `./re` after editing `inlist_run` -- use `./rn` instead so the updated inlist is copied through.
 
 ---
 
-## Step 4 — Lets think about this! -- Age diagnostics: seismic vs CMD
+## Step 4 -- Let's think about this as the model runs -- Age diagnostics: seismic vs CMD
 
-Before pooling results, compare what each observable is actually telling you.
 
-**$\Delta\nu$ as an age clock.** Because $\Delta\nu \propto \sqrt{\bar{\rho}} \propto \sqrt{M/R^3}$, it tracks the mean density. On the main sequence the star expands slowly, so $\Delta\nu$ decreases — but the rate depends on mass. This makes $\Delta\nu$ a useful density indicator but a coarse age clock on its own, because you need to know $M$ independently to convert density to age.
+As the model runs, compare what each observable is actually telling you.
 
-**$\delta\nu_{02}$ as an age clock.** The small separation probes the sound speed gradient in the core. As hydrogen burns, the mean molecular weight of the core increases, the sound speed drops, and the gradient steepens — so $\delta\nu_{02}$ decreases monotonically with central hydrogen abundance. This makes $\delta\nu_{02}$ a nearly mass-independent age indicator along the main sequence at fixed $\Delta\nu$. This is the basis of the Christensen-Dalsgaard (C–D) diagram: plotting $\delta\nu_{02}$ versus $\Delta\nu$ produces a grid where lines of constant mass and constant age cross at different angles, allowing both to be read off simultaneously from two observables.
+**$\Delta\nu$ as an age clock.** Because $\Delta\nu \propto \sqrt{\bar{\rho}} \propto \sqrt{M/R^3}$, it tracks the mean density. On the main sequence the star expands slowly, so $\Delta\nu$ decreases -- but the rate depends on mass. This makes $\Delta\nu$ a useful density indicator but a coarse age clock on its own, because you need to know $M$ independently to convert density to age.
 
-**Comparison with Lab 2.** In Lab 2 you measured stellar ages from CMD position — the $J-K_s$ colour and absolute $K_s$ magnitude. 
+**$\delta\nu_{02}$ as an age clock.** The small separation probes the sound speed gradient in the core. As hydrogen burns, the mean molecular weight of the core increases, the sound speed drops, and the gradient steepens -- so $\delta\nu_{02}$ decreases monotonically with central hydrogen abundance. This makes $\delta\nu_{02}$ a nearly mass-independent age indicator along the main sequence at fixed $\Delta\nu$. This is the basis of the Christensen-Dalsgaard (C–D) diagram: plotting $\delta\nu_{02}$ versus $\Delta\nu$ produces a grid where lines of constant mass and constant age cross at different angles, allowing both to be read off simultaneously from two observables.
 
-{{< details title="The method showin in Lab2 has two limitations, What are they?" closed="true" >}}
+**Comparison with Lab 2.** In Lab 2 you measured stellar ages from CMD position -- the $J-K_s$ colour and absolute $K_s$ magnitude. 
+
+{{< details title="What limitations could the method shown in Lab2 have?
+" closed="true" >}}
 **(1)** at young ages the main sequence is nearly vertical in colour-magnitude space, giving poor age resolution
 **(2)** photometric uncertainty propagates directly into age uncertainty through the isochrone width. 
 
@@ -292,17 +289,17 @@ Seismic observables sidestep both. The $\delta\nu_{02}$ versus $\Delta\nu$ diagr
 
 ---
 
-## Step 5 — Plotting beyond pgstar with Python
+## Step 5 -- Plotting beyond pgstar with Python
 
-Once the run has enough history data, use `mesa_reader` to reproduce the four key plots. The `python_helpers/` directory contains more complete plotting scripts — the code below is a minimal example you can run directly.
+Once the run has enough history data, use `mesa_reader` to reproduce the four key plots. The `python_helpers/` directory contains more complete plotting scripts -- the code below is a minimal example you can run directly.
 
 
 {{< details title="Python tips" closed="true" >}}
 You have options with how to run these. The easiest route is to probably launch python in live mode in your working directory.
 ```bash
-cd conent/monday/Lab3       #move to where the working directory is
+cd content/monday/Lab3       #move to where the working directory is
 
-python                      #open python live and paste the below code into it one by one so wee the plots.
+python                      #open python live and paste the below code into it one by one to see the plots.
 ```
 You can also save this code into a script and run the script. 
 {{< /details >}}
@@ -323,7 +320,7 @@ axes[0, 0].set_xlabel(r'$\log\,T_\mathrm{eff}$')
 axes[0, 0].set_ylabel(r'$\log\,L/L_\odot$')
 axes[0, 0].set_title('HR diagram')
 
-# CMD — 2MASS Vega-system columns written by the colors module
+# CMD -- 2MASS Vega-system columns written by the colors module
 # Verify the exact column names with: head -7 LOGS/history.data
 axes[0, 1].plot(h.J - h.Ks, h.Ks)
 axes[0, 1].invert_yaxis()
@@ -349,43 +346,10 @@ plt.show()
 ```
 
 > [!TIP]
-> `Delta_nu_int` and `delta_nu02_int` come from `run_star_extras.f90` as extra history columns — they are NOT in `history_columns.list` and you do not need to add them there. If you get an `AttributeError` on `h.J` or `h.Ks`, run `head -7 LOGS/history.data` and check the sixth line for the exact column names written by the colors module.
+> `Delta_nu_int` and `delta_nu02_int` come from `run_star_extras.f90` as extra history columns -- they are NOT in `history_columns.list` and you do not need to add them there. If you get an `AttributeError` on `h.J` or `h.Ks`, run `head -7 LOGS/history.data` and check the sixth line for the exact column names written by the colors module.
 
 
-**Phase-colored CMD** — color each point by evolutionary phase using MESA's `phase_of_evolution` column:
-
-```python
-import mesa_reader as mr
-import matplotlib.pyplot as plt
-import numpy as np
-
-h = mr.MesaData('LOGS/history.data')
-
-phase_colors = {
-    2: ('#FF69B4', 'Pre-MS'), 3: ('#00FF00', 'ZAMS'),
-    4: ('#0000FF', 'IAMS'),   5: ('#FF8C00', 'TAMS'),
-}
-
-color  = h.J - h.Ks
-mag    = h.Ks
-phases = h.phase_of_evolution.astype(int)
-
-fig, ax = plt.subplots(figsize=(7, 6))
-for code, (c, label) in phase_colors.items():
-    mask = phases == code
-    if mask.any():
-        ax.scatter(color[mask], mag[mask], s=10, color=c, label=label)
-
-ax.invert_yaxis()
-ax.set_xlabel(r'$J - K_s$')
-ax.set_ylabel(r'$K_s$')
-ax.set_title('CMD coloured by evolutionary phase')
-ax.legend()
-plt.tight_layout()
-plt.show()
-```
-
-**3D CMD** — lift the CMD into 3D using $\Delta\nu$ as the third axis, revealing how the seismic observable evolves along the sequence:
+**3D CMD** -- lift the CMD into 3D using $\Delta\nu$ as the third axis, revealing how the seismic observable evolves along the sequence:
 
 ```python
 import mesa_reader as mr
@@ -409,23 +373,24 @@ plt.show()
 
 
 > [!TIP]
-> Why dont you modify this plotting code? What happens when we plot the CMD with `delta_nu02_int` as the Z-axis?
+> Why don't you modify this plotting code? What happens when we plot the CMD with `delta_nu02_int` as the Z-axis?
 
 
 ---
 
-## Step 6 — Crowd-source the seismic grid
+## Step 6 -- Crowd-source the seismic grid
 
-Find the timestep in your history closest to 1 Gyr and enter the following into the shared spreadsheet:
+Run the snippet below to extract values at 1, 3, 5, 7, and 9 Gyr, then enter one row per age into the shared spreadsheet:
 
 | Column | Where to find it |
 |--------|-----------------|
 | `initial_mass` ($M_\odot$) | your assigned value |
-| $L/L_\odot$ | `luminosity` at 1 Gyr |
-| $T_\mathrm{eff}$ (K) | `Teff` at 1 Gyr |
-| 2MASS colour ($J-K_s$) | `J - Ks` at 1 Gyr |
-| $\Delta\nu$ ($\mu$Hz) | `Delta_nu_int` $\times 10^6$ at 1 Gyr |
-| $\delta\nu_{02}$ ($\mu$Hz) | `delta_nu02_int` $\times 10^6$ at 1 Gyr |
+| Age (Gyr) | the target age for that row |
+| $L/L_\odot$ | `10**log_L` at that age |
+| $T_\mathrm{eff}$ (K) | `Teff` at that age |
+| 2MASS colour ($J-K_s$) | `J - Ks` at that age |
+| $\Delta\nu$ ($\mu$Hz) | `Delta_nu_int` $\times 10^6$ at that age |
+| $\delta\nu_{02}$ ($\mu$Hz) | `delta_nu02_int` $\times 10^6$ at that age |
 
 ```python
 import mesa_reader as mr
@@ -446,7 +411,10 @@ for age in target_ages:
               f"delta_nu02: {h.delta_nu02_int[idx]*1e6:.2f} uHz")
 ```
 
-...and to check the mass from the inlist
+> [!NOTE]
+> If your model hasn't reached a target age yet, the row for that age will be missing from the output -- this is fine, enter what you have.
+
+...and to check the mass from the inlist (we can check the inlist as we earlier showed that the ```inlist``` file is made as a copy of the ```inlist_run``` file when we do ```./rn```)
 
 ```python 
 with open('inlist') as f:
@@ -455,13 +423,22 @@ with open('inlist') as f:
             print(line.strip())
 ```
 
+Add the results to the google sheets file.
+This link : [google sheets](https://docs.google.com/spreadsheets/d/1C88C5V2siCAaK8-3qgAZoNc9-9IH-RTIqFVetXQc3EM/edit?usp=sharing)
+
+> [!NOTE]
+>The RV and photometric amplitude columns in the spreadsheet are calculated automatically from your MESA output. You do not need to fill them in.
+>**RV amplitude** scales as $A_\mathrm{RV} \propto (L/M)^{1.5}$ (normalised to the solar value of 18 cm/s), following the scaling relation in [Chaplin et al. (2024)](https://ui.adsabs.harvard.edu/abs/2024A%26A...683L..16C/abstract). The noise floor for state-of-the-art radial velocity spectrographs (EPRVs) is approximately 30 cm/s per minute of cadence, from [Beard et al. (2025)](https://ui.adsabs.harvard.edu/abs/2025arXiv251101954B/abstract).
+>**Photometric amplitude** follows the scaling relation in Equation 10 of [Schofield et al. (2025)](https://ui.adsabs.harvard.edu/abs/2025AJ....170..212S/abstract) (the activity term is set to solar). The noise floor for space photometry (Kepler/TESS) is approximately 240 ppm per minute of cadence -- derived from the best-case 12 ppm per 6.5 hr reported in [Gilliland et al. (2011)](https://ui.adsabs.harvard.edu/abs/2011ApJS..197....6G/abstract).
+
 Once the full group has contributed, look at the complete grid. How well do $\Delta\nu$ and $\delta\nu_{02}$ separate stars of different masses at the same age? How does this compare to the CMD separation from Lab 2?
 
-## Step 7 — Who cares if we cant even measure it?
+
+## Step 7 -- Who cares if we cant even measure it?
 
 ### Get your own copy of the notebook
 
-The analysis lives in a shared Google Colab notebook. Open the link below, then **make a personal copy before you do anything else** — this is important so your edits don't overwrite someone else's work and vice versa.
+The analysis lives in a shared Google Colab notebook. Open the link below, then **make a personal copy before you do anything else** -- this is important so your edits don't overwrite someone else's work and vice versa.
 
 **→ [Open the Lab 3 detection map notebook](https://colab.research.google.com/drive/1cre1fH0yrvhCE0ZWSka4A4CloBuMWWwu#scrollTo=HkRl1EuNCjsr)**
 
@@ -484,38 +461,39 @@ In the shared Google Sheet:
 File → Download → Comma Separated Values (.csv)
 ```
 
-Save the file — you'll upload it into the notebook using the file upload button in the first cell.
+Save the file -- you'll upload it into the notebook using the file upload button in the first cell.
 
 ### What the notebook does
 
 The notebook reads the crowd-sourced grid and produces two detection map plots (photometric and RV), coloured by stellar mass with age annotated on each point. Horizontal threshold lines show the minimum detectable amplitude for each instrument and campaign length. Stars above a line are detectable; stars below are not.
 
-The parameters block near the top of the notebook lets you change instrument names, noise floors ($\sigma_0$), and campaign lengths — the threshold lines update when you rerun the cell.
+The parameters block near the top of the notebook lets you change instrument names, noise floors ($\sigma_0$), and campaign lengths -- the threshold lines update when you rerun the cell.
 
 ### What to look for
 
-The y-axis is logarithmic. The steep drop in amplitude towards red $J-K_s$ (K and M dwarfs) is immediately visible. The key result: below roughly $0.6\,M_\odot$ every threshold line sits above the stellar amplitude — these stars are currently inaccessible regardless of how long you observe.
+The y-axis is logarithmic. The steep drop in amplitude towards red $J-K_s$ (K and M dwarfs) is immediately visible. What masses can we realistically use this technique for? (https://arxiv.org/abs/1103.0702)
 
 {{< details title="Discussion questions" closed="true" >}}
 
 - Which stars in your grid sit above the TESS 1-sector threshold? Which need the full Kepler mission?
 - Which are accessible to ESPRESSO in a single night? Which need a multi-week campaign?
-- What does this tell you about the systematic bias in real asteroseismic catalogues — why the C–D diagram has been populated only for FGK dwarfs so far?
+- What does this tell you about the systematic bias in real asteroseismic catalogues? (https://arxiv.org/abs/2403.16333v1)
 - For stars where asteroseismology is detectable, how does the age precision from $\Delta\nu + \delta\nu_{02}$ compare to what you could infer from the CMD in Lab 2?
-- The first solar-like oscillation detection in a K5 dwarf ($\epsilon$ Indi, $J-K_s \approx 0.75$) required 6 consecutive half-nights with ESPRESSO on the VLT. Where does it land on your plot?
-
+- One of the first solar-like oscillation detection in a K5 dwarf ($\epsilon$ Indi, $J-K_s \approx 0.75$) (https://arxiv.org/abs/2403.16333) required 6 consecutive half-nights with ESPRESSO on the VLT. Where does it land on your plot?
+- What might make this a "best case scenario" study? What have we not considered? 
 {{< /details >}}
 
 
-## Bonus Step — What actually matters for wobbly stars?
+## Bonus Step -- What actually matters for wobbly stars?
 
-Lab 2 showed you that changing the atmospheric boundary condition (`atm_T_tau_relation`) and the mixing length parameter ($\alpha_\mathrm{MLT}$) visibly shifts a star's track on the HR diagram and CMD. Here you will ask: *do those same changes affect seismic observables?*
+Lab 2 showed you that changing the atmospheric boundary condition (`atm_T_tau_relation`) and the mixing length parameter ($\alpha_\mathrm{MLT}$) visibly shifts a star's track on the HR diagram and CMD (https://arxiv.org/pdf/2303.09596). Here you will ask: *by how much do those same changes affect seismic observables?*
 
-The answer matters because if $\Delta\nu$ and $\delta\nu_{02}$ are insensitive to surface physics, they give more trustworthy ages than CMD position — the seismic signal comes from the core, not the atmosphere.
+The answer matters because if $\Delta\nu$ and $\delta\nu_{02}$ are insensitive to surface physics, they give more trustworthy ages than CMD position -- the seismic signal comes from the core, not the atmosphere.
+This does not mean they are completely immune to surface physics, we are investigating just how robust these observables are.
 
 ### Setup
 
-Keep your Lab 3 mass. Run a small grid varying one parameter at a time, recording seismic and photometric values at the same target age (use 1 Gyr if your model reaches it, otherwise the closest available):
+Keep your Lab 3 mass. Run a small grid varying one parameter at a time, recording seismic and photometric values at the same target ages like before:
 
 **Vary the atmospheric boundary condition** (fix $\alpha_\mathrm{MLT} = 1.8$):
 
@@ -536,26 +514,29 @@ mixing_length_alpha = 3.0
 ```
 
 > [!CAUTION]
-> Change `star_history_name` for every run so files do not overwrite each other — e.g. `'1p0Msun_Eddington_alpha1p8.data'`.
+> Change `star_history_name` for every run so files do not overwrite each other -- e.g. `'1p0Msun_Eddington_alpha1p8.data'`.
 
 ### Extract the values
 
-Use the same snippet as Step 6, just targeting your chosen age:
+Use the same snippet as Step 6, just targeting your chosen ages:
 
 ```python
 import mesa_reader as mr
 import numpy as np
 
 h = mr.MesaData('LOGS/history.data')
-target_age = 1e9   # adjust if your model hasn't reached 1 Gyr
 
-idx = np.argmin(np.abs(h.star_age - target_age))
-print(f"Age:        {h.star_age[idx]/1e9:.3f} Gyr")
-print(f"Teff:       {h.Teff[idx]:.0f} K")
-print(f"L/Lsun:     {10**h.log_L[idx]:.4f}")
-print(f"J-Ks:       {h.J[idx] - h.Ks[idx]:.4f}")
-print(f"Delta_nu:   {h.Delta_nu_int[idx]*1e6:.2f} uHz")
-print(f"delta_nu02: {h.delta_nu02_int[idx]*1e6:.2f} uHz")
+target_ages = [1e9, 3e9, 5e9, 7e9, 9e9]
+
+for age in target_ages:
+    idx = np.argmin(np.abs(h.star_age - age))
+    if h.star_age[idx] < age * 1.2:
+        print(f"Age: {h.star_age[idx]/1e9:.1f} Gyr  "
+              f"Teff: {h.Teff[idx]:.0f} K  "
+              f"L/Lsun: {10**h.log_L[idx]:.4f}  "
+              f"J-Ks: {h.J[idx] - h.Ks[idx]:.4f}  "
+              f"Delta_nu: {h.Delta_nu_int[idx]*1e6:.2f} uHz  "
+              f"delta_nu02: {h.delta_nu02_int[idx]*1e6:.2f} uHz")
 ```
 
 ### Enter results into the shared spreadsheet
