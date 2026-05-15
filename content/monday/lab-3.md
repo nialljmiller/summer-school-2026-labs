@@ -1,3 +1,9 @@
++++
+date = '2026-04-06T13:38:04+02:00'
+draft = false
+title = 'Lab 3: Asteroseismology'
++++
+
 *Authors: Niall Miller (lead TA), Eliza Frankel, Joey Mombarg - Lecturer: Yaguang Li — MESA Summer School 2026, Tetons, Wyoming*
 
 # Lab 3: Asteroseismology
