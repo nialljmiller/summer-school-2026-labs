@@ -1,6 +1,4 @@
----
-author: Niall Miller
----
+*Authors: Niall Miller (lead TA), Eliza Frankel, Joey Mombarg - Lecturer: Yaguang Li — MESA Summer School 2026, Tetons, Wyoming*
 
 # Lab 3: Asteroseismology
 
